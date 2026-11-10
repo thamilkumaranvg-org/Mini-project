@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Profile | Farmer Slot Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/customer/slots.html" class="brand">
+        <span class="brand-icon">🌾</span>
+        <div class="brand-text">
+          <h1>Farmer Portal</h1>
+          <span id="header-user-name">Loading...</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/customer/slots.html" class="nav-link">Book Slots</a>
+        <a href="/customer/bookings.html" class="nav-link">My Bookings</a>
+        <a href="/customer/profile.html" class="nav-link active">Profile</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:32px 16px;">
+    <div class="card" style="max-width:680px;margin:0 auto;box-shadow:var(--shadow);">
+      <div class="card-header">
+        <h2 class="card-title">Farmer Profile & Identity Details</h2>
+        <span class="chip chip-available">Active Account</span>
+      </div>
+
+      <form id="profile-form">
+        <!-- Email & Role (Readonly) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-email">Registered Email (Login ID)</label>
+            <input type="email" id="p-email" class="form-control" disabled readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-role">System Role</label>
+            <input type="text" id="p-role" class="form-control" disabled readonly value="Customer / Farmer">
+          </div>
+        </div>
+
+        <!-- Full Name & Mobile -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-name">Full Name <span class="required">*</span></label>
+            <input type="text" id="p-name" class="form-control" required minlength="2">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-mobile">Mobile Number <span class="required">*</span></label>
+            <input type="tel" id="p-mobile" class="form-control" required pattern="^[6-9][0-9]{9}$" maxlength="10">
+          </div>
+        </div>
+
+        <!-- DOB & Gender -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-dob">Date of Birth <span class="required">*</span></label>
+            <input type="date" id="p-dob" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-gender">Gender <span class="required">*</span></label>
+            <select id="p-gender" class="form-control" required>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- State & District -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-state">State <span class="required">*</span></label>
+            <select id="p-state" class="form-control" required>
+              <option value="">Select State</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-district">District <span class="required">*</span></label>
+            <select id="p-district" class="form-control" required>
+              <option value="">Select District</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Full Address -->
+        <div class="form-group">
+          <label class="form-label" for="p-address">Residential Address <span class="required">*</span></label>
+          <textarea id="p-address" class="form-control" rows="3" required maxlength="300"></textarea>
+        </div>
+
+        <button type="submit" id="save-btn" class="btn btn-primary btn-block btn-lg" style="margin-top:20px;">
+          Save Profile Changes
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Ministry of Agriculture & Farmer Welfare
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast } from "/js/ui.js";
+
+    let stateData = {};
+    let currentUser = null;
+
+    async function loadDistricts() {
+      try {
+        const res = await fetch("/js/india-districts.json");
+        stateData = await res.json();
+        const stateSelect = document.getElementById("p-state");
+        const states = Object.keys(stateData).sort();
+        states.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s;
+          opt.textContent = s;
+          stateSelect.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const stateSelect = document.getElementById("p-state");
+    const districtSelect = document.getElementById("p-district");
+
+    stateSelect.onchange = () => {
+      const selected = stateSelect.value;
+      districtSelect.innerHTML = `<option value="">Select District</option>`;
+      if (selected && stateData[selected]) {
+        stateData[selected].sort().forEach(d => {
+          const opt = document.createElement("option");
+          opt.value = d;
+          opt.textContent = d;
+          districtSelect.appendChild(opt);
+        });
+      }
+    };
+
+    async function init() {
+      currentUser = await requireAuth("customer");
+      if (!currentUser) return;
+      setupHeader(currentUser, "FARMER");
+      await loadDistricts();
+
+      // Populate form
+      document.getElementById("p-email").value = currentUser.email;
+      document.getElementById("p-name").value = currentUser.full_name;
+      document.getElementById("p-mobile").value = currentUser.mobile || "";
+      document.getElementById("p-dob").value = currentUser.dob || "";
+      document.getElementById("p-gender").value = currentUser.gender || "male";
+      document.getElementById("p-address").value = currentUser.address || "";
+
+      if (currentUser.state) {
+        stateSelect.value = currentUser.state;
+        stateSelect.onchange();
+        if (currentUser.district) {
+          districtSelect.value = currentUser.district;
+        }
+      }
+    }
+
+    document.getElementById("profile-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById("save-btn");
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      const payload = {
+        full_name: document.getElementById("p-name").value.trim(),
+        mobile: document.getElementById("p-mobile").value.trim(),
+        dob: document.getElementById("p-dob").value,
+        gender: document.getElementById("p-gender").value,
+        state: stateSelect.value,
+        district: districtSelect.value,
+        address: document.getElementById("p-address").value.trim()
+      };
+
+      try {
+        const updated = await apiRequest("/api/profile", {
+          method: "PUT",
+          body: payload
+        });
+        showToast("Profile updated successfully", "success");
+        setupHeader(updated, "FARMER");
+      } catch (err) {
+        showToast(err.message || "Failed to update profile", "error");
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Profile Changes";
+      }
+    };
+
+    init();
+  </script>
+
+</body>
+</html>
+

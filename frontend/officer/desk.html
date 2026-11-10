@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter Officer Desk | Farmer Slot Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+
+<body>
+
+  <header class="app-header" style="background-color:#E65100;">
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-icon">⚖️</span>
+        <div class="brand-text">
+          <h1>Procurement Counter Desk</h1>
+          <span id="header-user-name">Loading...</span>
+        </div>
+      </div>
+      <div class="header-nav">
+        <span class="user-badge" id="header-role-badge">OFFICER</span>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary"
+          style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <!-- Today's Sessions Cards -->
+    <div style="margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h2 style="font-size:1.4rem;color:var(--green-900);margin:0;">Today's Procurement Sessions</h2>
+        <span class="chip chip-info" id="officer-clock-indicator">Business Day</span>
+      </div>
+      <div id="session-cards-container"
+        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <!-- Tomorrow's Scheduled Sessions Preview -->
+    <div style="margin-bottom:24px;background:#F9FBF9;padding:16px;border-radius:var(--radius-md);border:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <h2 style="font-size:1.2rem;color:var(--green-900);margin:0;">Tomorrow's Scheduled Slots</h2>
+          <span style="font-size:0.85rem;color:var(--muted);font-weight:500;" id="tomorrow-date-label"></span>
+        </div>
+        <span class="chip" style="background:#E8F5E9;color:#2E7D32;font-weight:600;font-size:0.8rem;">📅 Next Day Forecast</span>
+      </div>
+      <div id="tomorrow-cards-container"
+        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <!-- Active Serving Panel & Waiting Queue Split -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;margin-bottom:32px;">
+
+      <!-- Now Serving Panel -->
+      <div class="card" id="serving-card" style="border:2px solid var(--border);border-top:5px solid var(--green-700);">
+        <div class="card-header">
+          <h3 class="card-title" id="serving-card-title">Counter Status: Idle</h3>
+          <span class="chip" id="serving-status-chip">No Active Customer</span>
+        </div>
+
+        <div id="serving-idle-state" style="text-align:center;padding:40px 20px;color:var(--muted);">
+          <div style="font-size:3rem;margin-bottom:8px;">⚖️</div>
+          <p style="font-size:1.05rem;font-weight:500;">No farmer is currently called to your desk.</p>
+          <p style="font-size:0.85rem;margin-top:4px;">Select an active session and click "Call Next Customer" from the
+            waiting queue.</p>
+        </div>
+
+        <!-- Serving Active Content -->
+        <div id="serving-active-content" style="display:none;">
+          <!-- Queue & Receipt Banner -->
+          <div
+            style="display:flex;justify-content:space-between;align-items:center;background:var(--cream);padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:16px;border:1px solid var(--border);">
+            <div>
+              <span style="font-size:0.8rem;color:var(--muted);">Now Serving Queue:</span>
+              <div id="serving-queue-no" style="font-size:2.2rem;font-weight:800;color:var(--green-700);line-height:1;">
+                #1</div>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-family:monospace;font-weight:700;" id="serving-receipt-no">-</span>
+              <div style="font-size:0.8rem;color:var(--muted);" id="serving-session-name">-</div>
+            </div>
+          </div>
+
+          <!-- Customer Identity Details (Protected: Visible ONLY while called) -->
+          <div
+            style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+            <div
+              style="font-size:0.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">
+              Farmer Identity (Verified)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.9rem;">
+              <div><strong id="p-name">-</strong></div>
+              <div>Mobile: <span id="p-mobile">-</span></div>
+              <div>Age/DOB: <span id="p-dob">-</span></div>
+              <div>Gender: <span id="p-gender">-</span></div>
+              <div style="grid-column:1/-1;">Location: <span id="p-location">-</span></div>
+              <div style="grid-column:1/-1;color:var(--muted);font-size:0.85rem;">Address: <span id="p-address">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Produce & Weight Verification Form -->
+          <form id="completion-form">
+            <div
+              style="background:var(--green-50);border:1px solid #A5D6A7;border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                <span style="font-weight:600;color:var(--green-900);">Crop: <span id="serving-crop">-</span></span>
+                <span style="font-weight:600;color:var(--green-900);">MSP Rate: <span id="serving-rate">-</span></span>
+              </div>
+              <div style="font-size:0.9rem;color:var(--muted);margin-bottom:12px;">
+                Declared Quantity: <strong id="serving-declared-qty">- kg</strong> (Est. Amount: <span
+                  id="serving-est-amt">-</span>)
+              </div>
+
+              <div class="form-group" style="margin-bottom:10px;">
+                <label class="form-label" for="verified-weight-input" style="color:var(--green-900);">
+                  Verified Actual Weight (kg) <span class="required">*</span>
+                </label>
+                <input type="number" id="verified-weight-input" class="form-control" min="0.01" max="10000" step="0.01"
+                  required placeholder="Enter scale weight in kg">
+              </div>
+
+              <!-- Live Final Amount Display -->
+              <div
+                style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px dashed #A5D6A7;">
+                <span style="font-weight:700;color:var(--green-900);font-size:1.05rem;">Final Cash Payout:</span>
+                <span id="final-amount-display"
+                  style="font-size:1.6rem;font-weight:800;color:var(--green-700);">₹0.00</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex;gap:12px;">
+              <button type="button" id="mark-noshow-btn" class="btn btn-danger btn-sm" style="flex:1;">Mark
+                No-Show</button>
+              <button type="submit" id="complete-paid-btn" class="btn btn-primary" style="flex:2;">💵 Paid in Cash -
+                Complete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Waiting Queue Column -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div
+          style="padding:16px 20px;background:var(--cream);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <h3 style="margin:0;font-size:1.15rem;color:var(--green-900);">Checked-In Queue (Waiting)</h3>
+            <span style="font-size:0.8rem;color:var(--muted);" id="waiting-session-label">Session 1</span>
+          </div>
+          <button id="call-next-btn" class="btn btn-primary btn-sm" style="background-color:#E65100;">
+            📢 Call Next
+          </button>
+        </div>
+
+        <div class="table-responsive" style="margin:0;border:none;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:90px;">Queue #</th>
+                <th>Farmer Name</th>
+                <th>Check-in Time</th>
+              </tr>
+            </thead>
+            <tbody id="waiting-queue-tbody">
+              <tr>
+                <td colspan="3" style="text-align:center;padding:24px;color:var(--muted);">Select a session to view
+                  waiting queue</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Completed Transactions Today (Receipt-level data ONLY - R9) -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:16px 20px;background:var(--cream);border-bottom:1px solid var(--border);">
+        <h3 style="margin:0;font-size:1.15rem;color:var(--green-900);">Today's Completed Counter Settlements</h3>
+        <span style="font-size:0.8rem;color:var(--muted);">Receipt-level settlement records (Privacy Protected)</span>
+      </div>
+
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Receipt No</th>
+              <th>Farmer Name</th>
+              <th>Crop</th>
+              <th>Declared Qty</th>
+              <th>Verified Qty</th>
+              <th>Rate / kg</th>
+              <th>Final Paid</th>
+              <th>Completed At</th>
+            </tr>
+          </thead>
+          <tbody id="completed-today-tbody">
+            <tr>
+              <td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">No completed transactions yet
+                today.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Desk Officer Counter • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatCurrency, formatTime, escapeHTML, showConfirmModal } from "/js/ui.js";
+    import { SmartPoller } from "/js/polling.js";
+
+    let currentUser = null;
+    let selectedSessionId = 1;
+    let currentCalledBooking = null;
+    let poller = null;
+
+    async function init() {
+      currentUser = await requireAuth("officer");
+      if (!currentUser) return;
+      setupHeader(currentUser, "OFFICER DESK");
+
+      await refreshOfficerData();
+
+      // Poll every 3 seconds for desk and queue updates
+      poller = new SmartPoller(refreshOfficerData, 3000);
+      poller.start();
+    }
+
+    async function refreshOfficerData() {
+      await loadTodaySessions();
+      await loadTomorrowSessions();
+      await loadCurrentServing();
+      await loadWaitingQueue();
+      await loadCompletedToday();
+    }
+
+    async function loadTomorrowSessions() {
+      const container = document.getElementById("tomorrow-cards-container");
+      if (!container) return;
+      try {
+        const sessions = await apiRequest("/api/officer/sessions/tomorrow");
+        if (sessions.length > 0 && sessions[0].session_date) {
+          const dLabel = document.getElementById("tomorrow-date-label");
+          if (dLabel) {
+            dLabel.textContent = `(${sessions[0].session_date})`;
+          }
+        }
+        container.innerHTML = sessions.map(s => {
+          const badgeClass = s.remaining_seats === 0 ? "chip-danger" : (s.remaining_seats <= 2 ? "chip-warning" : "chip-success");
+          return `
+            <div class="card" style="margin:0;padding:14px;border:1px solid var(--border);background:#FFFFFF;border-radius:var(--radius-sm);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <strong style="color:var(--green-900);font-size:1.05rem;">${escapeHTML(s.session_name)}</strong>
+                <span class="chip ${badgeClass}" style="font-size:0.75rem;padding:2px 8px;">${escapeHTML(s.status_label)}</span>
+              </div>
+              <div style="font-size:0.85rem;color:var(--muted);margin-bottom:10px;">${escapeHTML(s.start_time)} - ${escapeHTML(s.end_time)}</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--cream);padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border-light);">
+                <div>
+                  <span style="font-size:0.75rem;color:var(--muted);display:block;">Slots Booked</span>
+                  <span style="font-size:1.15rem;font-weight:700;color:var(--green-900);">${s.booked_count} <span style="font-size:0.8rem;color:var(--muted);font-weight:400;">/ ${s.capacity}</span></span>
+                </div>
+                <div style="text-align:right;">
+                  <span style="font-size:0.75rem;color:var(--muted);display:block;">Remaining</span>
+                  <span style="font-size:1.15rem;font-weight:700;color:${s.remaining_seats === 0 ? "var(--red-500)" : "var(--green-700)"};">${s.remaining_seats}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (e) {
+        console.warn("Could not load tomorrow sessions", e);
+      }
+    }
+
+    async function loadTodaySessions() {
+      const container = document.getElementById("session-cards-container");
+      try {
+        const sessions = await apiRequest("/api/officer/sessions/today");
+        container.innerHTML = sessions.map(s => {
+          const isSelected = s.session_id === selectedSessionId;
+          const statusColor = s.session_status === "in_progress" ? "var(--green-700)" : s.session_status === "upcoming" ? "var(--gold-500)" : "#9E9E9E";
+          const statusText = s.session_status === "in_progress" ? "● IN PROGRESS" : s.session_status === "upcoming" ? "UPCOMING" : "ENDED";
+
+          return `
+            <div class="card" style="margin:0;cursor:pointer;border:2px solid ${isSelected ? "var(--green-700)" : "var(--border)"};background:${isSelected ? "var(--green-50)" : "#FFFFFF"};padding:16px;" onclick="window.selectSession(${s.session_id})">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <strong style="color:var(--green-900);font-size:1.1rem;">${escapeHTML(s.session_name)}</strong>
+                <span class="chip" style="font-size:0.75rem;border:1px solid ${statusColor};color:${statusColor};background:#FFFFFF;">${statusText}</span>
+              </div>
+              <div style="font-size:1.2rem;font-weight:700;margin-bottom:8px;">${s.start_time} - ${s.end_time}</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:0.8rem;color:var(--muted);text-align:center;">
+                <div style="background:#FFFFFF;padding:4px;border-radius:4px;border:1px solid var(--border-light);">
+                  Booked: <strong>${s.booked_count}</strong>
+                </div>
+                <div style="background:#FFFFFF;padding:4px;border-radius:4px;border:1px solid var(--border-light);">
+                  Waiting: <strong style="color:#0277BD;">${s.waiting_count}</strong>
+                </div>
+                <div style="background:#FFFFFF;padding:4px;border-radius:4px;border:1px solid var(--border-light);">
+                  Done: <strong style="color:var(--green-700);">${s.completed_count}</strong>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (e) {
+        console.warn("Could not load sessions", e);
+      }
+    }
+
+    window.selectSession = (id) => {
+      selectedSessionId = id;
+      document.getElementById("waiting-session-label").textContent = `Session ${id}`;
+      refreshOfficerData();
+    };
+
+    async function loadCurrentServing() {
+      const idleBox = document.getElementById("serving-idle-state");
+      const activeContent = document.getElementById("serving-active-content");
+      const title = document.getElementById("serving-card-title");
+      const chip = document.getElementById("serving-status-chip");
+      const callBtn = document.getElementById("call-next-btn");
+
+      try {
+        const called = await apiRequest("/api/officer/current");
+        currentCalledBooking = called;
+
+        if (!called) {
+          idleBox.style.display = "block";
+          activeContent.style.display = "none";
+          title.textContent = "Counter Status: Idle";
+          chip.textContent = "No Active Customer";
+          chip.className = "chip chip-disabled";
+          callBtn.disabled = false;
+          return;
+        }
+
+        // Active customer currently called by this officer
+        idleBox.style.display = "none";
+        activeContent.style.display = "block";
+        title.textContent = "Now Serving at Counter";
+        chip.textContent = "● IN SERVICE";
+        chip.className = "chip chip-available";
+        callBtn.disabled = true; // Cannot call another until this one finishes
+
+        document.getElementById("serving-queue-no").textContent = `#${called.queue_number}`;
+        document.getElementById("serving-receipt-no").textContent = called.receipt_no;
+        document.getElementById("serving-session-name").textContent = called.session_name;
+
+        // Populate Profile
+        const p = called.profile || {};
+        document.getElementById("p-name").textContent = p.full_name || "-";
+        document.getElementById("p-mobile").textContent = p.mobile || "-";
+        document.getElementById("p-dob").textContent = p.dob || "-";
+        document.getElementById("p-gender").textContent = p.gender ? p.gender.toUpperCase() : "-";
+        document.getElementById("p-location").textContent = `${p.district || ""}, ${p.state || ""}`;
+        document.getElementById("p-address").textContent = p.address || "-";
+
+        // Produce details
+        document.getElementById("serving-crop").textContent = called.crop_name;
+        document.getElementById("serving-rate").textContent = `₹${called.price_per_kg.toFixed(2)} / kg`;
+        document.getElementById("serving-declared-qty").textContent = `${called.declared_quantity_kg} kg`;
+        document.getElementById("serving-est-amt").textContent = formatCurrency(called.estimated_amount);
+
+        updateLivePayout();
+
+      } catch (e) {
+        console.warn("Could not check current serving status", e);
+      }
+    }
+
+    async function loadWaitingQueue() {
+      const tbody = document.getElementById("waiting-queue-tbody");
+      try {
+        const items = await apiRequest(`/api/officer/queue?session_id=${selectedSessionId}`);
+        if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--muted);">Waiting queue is empty.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items.map(q => `
+          <tr>
+            <td><strong style="color:var(--green-700);font-size:1.2rem;">#${q.queue_number}</strong></td>
+            <td style="font-weight:600;">${escapeHTML(q.receipt_name)}</td>
+            <td style="color:var(--muted);">${formatTime(q.checked_in_at)}</td>
+          </tr>
+        `).join("");
+      } catch (e) {
+        console.warn("Could not load waiting queue", e);
+      }
+    }
+
+    async function loadCompletedToday() {
+      const tbody = document.getElementById("completed-today-tbody");
+      try {
+        const items = await apiRequest("/api/officer/completed-today");
+        if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">No completed transactions yet today.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items.map(c => `
+          <tr>
+            <td><span style="font-family:monospace;font-weight:600;">${escapeHTML(c.receipt_no)}</span></td>
+            <td style="font-weight:600;">${escapeHTML(c.receipt_name)}</td>
+            <td>${escapeHTML(c.crop_name)}</td>
+            <td>${c.declared_quantity_kg} kg</td>
+            <td><strong>${c.verified_quantity_kg} kg</strong></td>
+            <td>₹${c.price_per_kg.toFixed(2)}</td>
+            <td><strong style="color:var(--green-700);">${formatCurrency(c.final_amount)}</strong></td>
+            <td style="color:var(--muted);font-size:0.85rem;">${formatTime(c.completed_at)}</td>
+          </tr>
+        `).join("");
+      } catch (e) {
+        console.warn("Could not load completed today", e);
+      }
+    }
+
+    // Call Next Button
+    document.getElementById("call-next-btn").onclick = async () => {
+      const btn = document.getElementById("call-next-btn");
+      btn.disabled = true;
+      btn.textContent = "Calling...";
+
+      try {
+        const called = await apiRequest("/api/officer/call-next", {
+          method: "POST",
+          body: { session_id: selectedSessionId }
+        });
+        showToast(`Called Queue #${called.queue_number} to Counter`, "success");
+        await refreshOfficerData();
+      } catch (err) {
+        showToast(err.message || "Failed to call next customer", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "📢 Call Next";
+      }
+    };
+
+    // Live Payout Calculation
+    const weightInput = document.getElementById("verified-weight-input");
+    const payoutDisplay = document.getElementById("final-amount-display");
+
+    function updateLivePayout() {
+      if (!currentCalledBooking) return;
+      const verifiedKg = parseFloat(weightInput.value) || 0;
+      const rate = currentCalledBooking.price_per_kg;
+      const finalAmt = Math.round(verifiedKg * rate * 100) / 100;
+      payoutDisplay.textContent = formatCurrency(finalAmt);
+    }
+
+    weightInput.oninput = updateLivePayout;
+
+    // Form Completion Handler
+    document.getElementById("completion-form").onsubmit = async (e) => {
+      e.preventDefault();
+      if (!currentCalledBooking) return;
+
+      const verifiedKg = parseFloat(weightInput.value);
+      if (!verifiedKg || verifiedKg <= 0) {
+        showToast("Please enter a valid verified weight greater than 0 kg", "error");
+        return;
+      }
+
+      const btn = document.getElementById("complete-paid-btn");
+      btn.disabled = true;
+      btn.textContent = "Processing...";
+
+      try {
+        await apiRequest(`/api/officer/bookings/${currentCalledBooking.booking_id}/complete`, {
+          method: "POST",
+          body: { verified_quantity_kg: verifiedKg }
+        });
+        showToast("Produce verified and payment marked completed!", "success");
+        weightInput.value = "";
+        await refreshOfficerData();
+      } catch (err) {
+        showToast(err.message || "Failed to complete transaction", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "💵 Paid in Cash - Complete";
+      }
+    };
+
+    // Mark No-Show Handler
+    document.getElementById("mark-noshow-btn").onclick = () => {
+      if (!currentCalledBooking) return;
+      showConfirmModal(
+        "Mark Customer as No-Show",
+        `Are you sure you want to mark Queue #${currentCalledBooking.queue_number} as No-Show? They did not appear at the counter.`,
+        async () => {
+          try {
+            await apiRequest(`/api/officer/bookings/${currentCalledBooking.booking_id}/no-show`, { method: "POST" });
+            showToast("Customer marked as No-Show", "success");
+            weightInput.value = "";
+            await refreshOfficerData();
+          } catch (e) {
+            showToast(e.message || "Failed to mark no-show", "error");
+          }
+        },
+        "Confirm No-Show",
+        true
+      );
+    };
+
+    init();
+  </script>
+
+</body>
+
+</html>

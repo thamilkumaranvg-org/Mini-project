@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security & System Audit Log | Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#263238;">
+    <div class="header-container">
+      <a href="/admin/dashboard.html" class="brand">
+        <span class="brand-icon">📊</span>
+        <div class="brand-text">
+          <h1>Admin Console</h1>
+          <span id="header-user-name">Administrator</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/admin/bookings.html" class="nav-link">Bookings</a>
+        <a href="/admin/customers.html" class="nav-link">Farmers</a>
+        <a href="/admin/crops.html" class="nav-link">Crops & Prices</a>
+        <a href="/admin/staff.html" class="nav-link">Staff Accounts</a>
+        <a href="/admin/audit.html" class="nav-link active">Audit Log</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <div style="margin-bottom:20px;">
+      <h1 style="font-size:1.8rem;color:var(--green-900);">System Audit Trail</h1>
+      <p style="color:var(--muted);font-size:0.95rem;">Tamper-evident log of logins, price revisions, cancellations, check-ins, calls, and payouts</p>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Action</th>
+              <th>Entity</th>
+              <th>Entity ID</th>
+              <th>Details</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">Loading audit trail...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div style="padding:12px 20px;background:var(--cream);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:0.85rem;color:var(--muted);" id="page-display">Page 1</span>
+        <div style="display:flex;gap:8px;">
+          <button id="prev-page-btn" class="btn btn-secondary btn-sm" disabled>Previous</button>
+          <button id="next-page-btn" class="btn btn-secondary btn-sm">Next</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Admin Console • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatDate, formatTime, escapeHTML } from "/js/ui.js";
+
+    let currentUser = null;
+    let currentPage = 1;
+    const pageSize = 50;
+
+    async function init() {
+      currentUser = await requireAuth("admin");
+      if (!currentUser) return;
+      setupHeader(currentUser, "ADMINISTRATOR");
+
+      await loadAuditLog();
+    }
+
+    async function loadAuditLog() {
+      const tbody = document.getElementById("audit-tbody");
+      try {
+        const data = await apiRequest(`/api/admin/audit-log?page=${currentPage}&page_size=${pageSize}`);
+        const items = data.items || [];
+
+        document.getElementById("page-display").textContent = `Page ${currentPage}`;
+        document.getElementById("prev-page-btn").disabled = (currentPage <= 1);
+        document.getElementById("next-page-btn").disabled = (items.length < pageSize);
+
+        if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">No audit events recorded.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items.map(a => {
+          let actionColor = "chip-info";
+          if (a.action.includes("COMPLETE") || a.action.includes("REGISTER")) actionColor = "chip-available";
+          else if (a.action.includes("CANCEL") || a.action.includes("NO_SHOW")) actionColor = "chip-full";
+          else if (a.action.includes("UPDATE") || a.action.includes("PRICE")) actionColor = "chip-almost";
+
+          const detailsStr = a.details ? JSON.stringify(a.details) : "-";
+
+          return `
+            <tr>
+              <td>#${a.id}</td>
+              <td><span class="chip ${actionColor}">${escapeHTML(a.action)}</span></td>
+              <td><strong>${escapeHTML(a.entity)}</strong></td>
+              <td><span style="font-family:monospace;font-size:0.85rem;">${escapeHTML(a.entity_id || "-")}</span></td>
+              <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace;font-size:0.8rem;" title="${escapeHTML(detailsStr)}">
+                ${escapeHTML(detailsStr)}
+              </td>
+              <td style="color:var(--muted);font-size:0.85rem;">
+                ${formatDate(a.created_at)} ${formatTime(a.created_at)}
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+      } catch (e) {
+        showToast(e.message || "Failed to load audit trail", "error");
+      }
+    }
+
+    document.getElementById("prev-page-btn").onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadAuditLog();
+      }
+    };
+
+    document.getElementById("next-page-btn").onclick = () => {
+      currentPage++;
+      loadAuditLog();
+    };
+
+    init();
+  </script>
+
+</body>
+</html>
+

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Accounts Management | Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#263238;">
+    <div class="header-container">
+      <a href="/admin/dashboard.html" class="brand">
+        <span class="brand-icon">📊</span>
+        <div class="brand-text">
+          <h1>Admin Console</h1>
+          <span id="header-user-name">Administrator</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/admin/bookings.html" class="nav-link">Bookings</a>
+        <a href="/admin/customers.html" class="nav-link">Farmers</a>
+        <a href="/admin/crops.html" class="nav-link">Crops & Prices</a>
+        <a href="/admin/staff.html" class="nav-link active">Staff Accounts</a>
+        <a href="/admin/audit.html" class="nav-link">Audit Log</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-size:1.8rem;color:var(--green-900);">Gate Staff & Counter Officers</h1>
+        <p style="color:var(--muted);font-size:0.95rem;">Manage authorized personnel accounts for gate scanning and desk operations</p>
+      </div>
+      <button id="add-staff-btn" class="btn btn-primary btn-sm">+ Provision Staff Account</button>
+    </div>
+
+    <!-- Staff Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Staff Name</th>
+              <th>Email</th>
+              <th>Role Assigned</th>
+              <th>Status</th>
+              <th>Provisioned On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="staff-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">Loading staff accounts...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Staff Modal -->
+  <div id="staff-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Provision New Staff Account</h3>
+        <button type="button" class="btn btn-sm" id="staff-close-btn">✕</button>
+      </div>
+      <form id="staff-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="staff-name">Full Name <span class="required">*</span></label>
+            <input type="text" id="staff-name" class="form-control" required placeholder="e.g. Officer Priya">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="staff-email">Official Email <span class="required">*</span></label>
+            <input type="email" id="staff-email" class="form-control" required placeholder="priya@slotbooking.gov.in">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="staff-pass">Temporary Password <span class="required">*</span></label>
+            <input type="password" id="staff-pass" class="form-control" required minlength="8" placeholder="Minimum 8 characters">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="staff-role">Operational Role <span class="required">*</span></label>
+            <select id="staff-role" class="form-control" required>
+              <option value="scanner">Gate Scanner Staff (Gate Check-in)</option>
+              <option value="officer">Counter Officer (Desk Verification & Payout)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="staff-cancel-btn">Cancel</button>
+          <button type="submit" id="staff-save-btn" class="btn btn-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Admin Console • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatDate, escapeHTML, showConfirmModal } from "/js/ui.js";
+
+    let currentUser = null;
+
+    async function init() {
+      currentUser = await requireAuth("admin");
+      if (!currentUser) return;
+      setupHeader(currentUser, "ADMINISTRATOR");
+
+      await loadStaff();
+    }
+
+    async function loadStaff() {
+      const tbody = document.getElementById("staff-tbody");
+      try {
+        const staff = await apiRequest("/api/admin/staff");
+        tbody.innerHTML = staff.map(s => `
+          <tr>
+            <td><strong style="font-size:1.05rem;">${escapeHTML(s.full_name)}</strong></td>
+            <td>${escapeHTML(s.email)}</td>
+            <td>
+              <span class="chip ${s.role === "scanner" ? "chip-info" : "chip-almost"}">
+                ${s.role === "scanner" ? "📷 GATE SCANNER" : "⚖️ DESK OFFICER"}
+              </span>
+            </td>
+            <td>
+              <span class="chip ${s.is_active ? "chip-available" : "chip-disabled"}">
+                ${s.is_active ? "ACTIVE" : "DEACTIVATED"}
+              </span>
+            </td>
+            <td style="color:var(--muted);font-size:0.85rem;">${formatDate(s.created_at)}</td>
+            <td>
+              <button class="btn ${s.is_active ? "btn-danger" : "btn-primary"} btn-sm" onclick="window.toggleStaff('${s.id}', ${!s.is_active})">
+                ${s.is_active ? "Deactivate" : "Activate"}
+              </button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (e) {
+        showToast(e.message || "Failed to load staff", "error");
+      }
+    }
+
+    const modal = document.getElementById("staff-modal");
+    document.getElementById("add-staff-btn").onclick = () => {
+      document.getElementById("staff-name").value = "";
+      document.getElementById("staff-email").value = "";
+      document.getElementById("staff-pass").value = "";
+      modal.classList.add("open");
+    };
+
+    const closeModal = () => modal.classList.remove("open");
+    document.getElementById("staff-close-btn").onclick = closeModal;
+    document.getElementById("staff-cancel-btn").onclick = closeModal;
+
+    document.getElementById("staff-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById("staff-save-btn");
+      saveBtn.disabled = true;
+
+      const full_name = document.getElementById("staff-name").value.trim();
+      const email = document.getElementById("staff-email").value.trim().toLowerCase();
+      const password = document.getElementById("staff-pass").value;
+      const role = document.getElementById("staff-role").value;
+
+      try {
+        await apiRequest("/api/admin/staff", {
+          method: "POST",
+          body: { full_name, email, password, role }
+        });
+        showToast("Staff account provisioned successfully", "success");
+        closeModal();
+        await loadStaff();
+      } catch (err) {
+        showToast(err.message || "Failed to create staff account", "error");
+      } finally {
+        saveBtn.disabled = false;
+      }
+    };
+
+    window.toggleStaff = (id, newActive) => {
+      const actionStr = newActive ? "activate" : "deactivate";
+      showConfirmModal(
+        `${actionStr.toUpperCase()} Staff Account`,
+        `Are you sure you want to ${actionStr} this staff member?`,
+        async () => {
+          try {
+            await apiRequest(`/api/admin/staff/${id}`, {
+              method: "PATCH",
+              body: { is_active: newActive }
+            });
+            showToast(`Staff member ${actionStr}d`, "success");
+            await loadStaff();
+          } catch (e) {
+            showToast(e.message || "Action failed", "error");
+          }
+        },
+        newActive ? "Activate" : "Deactivate",
+        !newActive
+      );
+    };
+
+    init();
+  </script>
+
+</body>
+</html>
+

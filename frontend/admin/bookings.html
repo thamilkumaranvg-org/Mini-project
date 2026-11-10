@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Bookings | Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#263238;">
+    <div class="header-container">
+      <a href="/admin/dashboard.html" class="brand">
+        <span class="brand-icon">📊</span>
+        <div class="brand-text">
+          <h1>Admin Console</h1>
+          <span id="header-user-name">Administrator</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/admin/bookings.html" class="nav-link active">Bookings</a>
+        <a href="/admin/customers.html" class="nav-link">Farmers</a>
+        <a href="/admin/crops.html" class="nav-link">Crops & Prices</a>
+        <a href="/admin/staff.html" class="nav-link">Staff Accounts</a>
+        <a href="/admin/audit.html" class="nav-link">Audit Log</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-size:1.8rem;color:var(--green-900);">Produce Selling Bookings History</h1>
+        <p style="color:var(--muted);font-size:0.95rem;">Search, filter, inspect and export all reservation records</p>
+      </div>
+      <button id="export-csv-btn" class="btn btn-primary btn-sm">📥 Export to CSV</button>
+    </div>
+
+    <!-- Filter Bar Card -->
+    <div class="card" style="padding:16px 20px;margin-bottom:20px;">
+      <form id="filter-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Date From</label>
+          <input type="date" id="filter-date-from" class="form-control" style="min-height:38px;padding:6px 10px;">
+        </div>
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Date To</label>
+          <input type="date" id="filter-date-to" class="form-control" style="min-height:38px;padding:6px 10px;">
+        </div>
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Session</label>
+          <select id="filter-session" class="form-control" style="min-height:38px;padding:6px 10px;">
+            <option value="">All Sessions</option>
+            <option value="1">Session 1 (09:00 - 11:00)</option>
+            <option value="2">Session 2 (11:20 - 13:20)</option>
+            <option value="3">Session 3 (14:00 - 16:00)</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Status</label>
+          <select id="filter-status" class="form-control" style="min-height:38px;padding:6px 10px;">
+            <option value="">All Statuses</option>
+            <option value="booked">Booked</option>
+            <option value="checked_in">Checked In</option>
+            <option value="called">Called</option>
+            <option value="completed">Completed</option>
+            <option value="missed">Missed</option>
+            <option value="no_show">No-Show</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Search</label>
+          <input type="text" id="filter-q" class="form-control" style="min-height:38px;padding:6px 10px;" placeholder="Receipt / Farmer Name">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="submit" class="btn btn-primary btn-sm" style="flex:1;min-height:38px;">Filter</button>
+          <button type="button" id="reset-filter-btn" class="btn btn-secondary btn-sm" style="min-height:38px;">Reset</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Receipt No</th>
+              <th>Date & Session</th>
+              <th>Farmer Name</th>
+              <th>Crop</th>
+              <th>Weight (Decl / Ver)</th>
+              <th>Final Paid</th>
+              <th>Status</th>
+              <th>Queue #</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">Loading bookings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div style="padding:12px 20px;background:var(--cream);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:0.85rem;color:var(--muted);" id="page-display">Page 1</span>
+        <div style="display:flex;gap:8px;">
+          <button id="prev-page-btn" class="btn btn-secondary btn-sm" disabled>Previous</button>
+          <button id="next-page-btn" class="btn btn-secondary btn-sm">Next</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Detail Drawer / Modal -->
+  <div id="booking-detail-modal" class="modal-overlay">
+    <div class="modal" style="max-width:620px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Booking Details</h3>
+        <button type="button" class="btn btn-sm" id="detail-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="detail-modal-body">
+        <!-- Filled dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="detail-cancel-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Admin Console • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatCurrency, formatDate, formatTime, escapeHTML } from "/js/ui.js";
+
+    let currentUser = null;
+    let currentPage = 1;
+    const pageSize = 20;
+
+    async function init() {
+      currentUser = await requireAuth("admin");
+      if (!currentUser) return;
+      setupHeader(currentUser, "ADMINISTRATOR");
+
+      await loadBookings();
+    }
+
+    function getFilterParams() {
+      const p = new URLSearchParams();
+      p.set("page", currentPage);
+      p.set("page_size", pageSize);
+
+      const dFrom = document.getElementById("filter-date-from").value;
+      const dTo = document.getElementById("filter-date-to").value;
+      const sId = document.getElementById("filter-session").value;
+      const status = document.getElementById("filter-status").value;
+      const q = document.getElementById("filter-q").value.trim();
+
+      if (dFrom) p.set("date_from", dFrom);
+      if (dTo) p.set("date_to", dTo);
+      if (sId) p.set("session_id", sId);
+      if (status) p.set("status", status);
+      if (q) p.set("q", q);
+
+      return p;
+    }
+
+    async function loadBookings() {
+      const tbody = document.getElementById("bookings-tbody");
+      const params = getFilterParams();
+
+      try {
+        const data = await apiRequest(`/api/admin/bookings?${params.toString()}`);
+        const items = data.items || [];
+
+        document.getElementById("page-display").textContent = `Page ${data.page}`;
+        document.getElementById("prev-page-btn").disabled = (data.page <= 1);
+        document.getElementById("next-page-btn").disabled = (items.length < pageSize);
+
+        if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);">No matching bookings found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items.map(b => {
+          let statusChip = "chip-info";
+          if (b.status === "completed") statusChip = "chip-available";
+          else if (b.status === "checked_in") statusChip = "chip-available";
+          else if (b.status === "called") statusChip = "chip-almost";
+          else if (b.status === "missed" || b.status === "no_show") statusChip = "chip-full";
+          else if (b.status === "cancelled") statusChip = "chip-disabled";
+
+          return `
+            <tr>
+              <td><span style="font-family:monospace;font-weight:600;">${escapeHTML(b.receipt_no)}</span></td>
+              <td>${formatDate(b.session_date)} (S${b.session_id})</td>
+              <td style="font-weight:600;">${escapeHTML(b.receipt_name)}</td>
+              <td>${escapeHTML(b.crop_name)}</td>
+              <td>${b.quantity_kg} kg / ${b.verified_quantity_kg ? `<strong>${b.verified_quantity_kg} kg</strong>` : "-"}</td>
+              <td>${b.final_amount ? `<strong>${formatCurrency(b.final_amount)}</strong>` : "-"}</td>
+              <td><span class="chip ${statusChip}">${b.status.toUpperCase()}</span></td>
+              <td>${b.queue_number ? `<strong style="color:var(--green-700);">#${b.queue_number}</strong>` : "-"}</td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick="window.viewDetail('${b.id}')">Details</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+      } catch (e) {
+        showToast(e.message || "Failed to load bookings", "error");
+      }
+    }
+
+    document.getElementById("filter-form").onsubmit = (e) => {
+      e.preventDefault();
+      currentPage = 1;
+      loadBookings();
+    };
+
+    document.getElementById("reset-filter-btn").onclick = () => {
+      document.getElementById("filter-date-from").value = "";
+      document.getElementById("filter-date-to").value = "";
+      document.getElementById("filter-session").value = "";
+      document.getElementById("filter-status").value = "";
+      document.getElementById("filter-q").value = "";
+      currentPage = 1;
+      loadBookings();
+    };
+
+    document.getElementById("prev-page-btn").onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadBookings();
+      }
+    };
+
+    document.getElementById("next-page-btn").onclick = () => {
+      currentPage++;
+      loadBookings();
+    };
+
+    // CSV Export
+    document.getElementById("export-csv-btn").onclick = async () => {
+      const btn = document.getElementById("export-csv-btn");
+      btn.disabled = true;
+      btn.textContent = "Exporting...";
+
+      try {
+        const params = getFilterParams();
+        params.delete("page");
+        params.delete("page_size");
+        const blob = await apiRequest(`/api/admin/export/bookings.csv?${params.toString()}`);
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `bookings_export_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        showToast("CSV export downloaded", "success");
+      } catch (e) {
+        showToast(e.message || "Export failed", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "📥 Export to CSV";
+      }
+    };
+
+    // View Detail Modal
+    window.viewDetail = async (id) => {
+      const modal = document.getElementById("booking-detail-modal");
+      const body = document.getElementById("detail-modal-body");
+
+      try {
+        const data = await apiRequest(`/api/admin/bookings/${id}`);
+        const b = data.booking;
+        const c = data.customer || {};
+
+        body.innerHTML = `
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-family:monospace;font-size:1.1rem;font-weight:700;">${escapeHTML(b.receipt_no)}</span>
+              <span class="chip chip-info">${b.status.toUpperCase()}</span>
+            </div>
+            <div style="font-size:0.9rem;color:var(--muted);">Date: ${formatDate(b.session_date)} | Session ${b.session_id} | Queue: ${b.queue_number ? `#${b.queue_number}` : "-"}</div>
+          </div>
+
+          <h4 style="color:var(--green-900);margin-bottom:8px;">Farmer Profile</h4>
+          <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px;font-size:0.9rem;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div><strong>Name:</strong> ${escapeHTML(c.full_name || b.receipt_name)}</div>
+            <div><strong>Email:</strong> ${escapeHTML(c.email || "-")}</div>
+            <div><strong>Mobile:</strong> ${escapeHTML(c.mobile || "-")}</div>
+            <div><strong>Gender:</strong> ${escapeHTML(c.gender || "-")}</div>
+            <div style="grid-column:1/-1;"><strong>District/State:</strong> ${escapeHTML(c.district || "")}, ${escapeHTML(c.state || "")}</div>
+            <div style="grid-column:1/-1;"><strong>Address:</strong> ${escapeHTML(c.address || "-")}</div>
+          </div>
+
+          <h4 style="color:var(--green-900);margin-bottom:8px;">Produce & Financials</h4>
+          <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:0.9rem;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div><strong>Crop:</strong> ${escapeHTML(b.crop_name)}</div>
+            <div><strong>Rate Snapshot:</strong> ₹${parseFloat(b.price_per_kg).toFixed(2)} / kg</div>
+            <div><strong>Declared Qty:</strong> ${b.quantity_kg} kg</div>
+            <div><strong>Estimated:</strong> ${formatCurrency(b.estimated_amount)}</div>
+            <div><strong>Verified Qty:</strong> ${b.verified_quantity_kg ? `${b.verified_quantity_kg} kg` : "-"}</div>
+            <div><strong>Final Paid:</strong> ${b.final_amount ? `<strong style="color:var(--green-700);">${formatCurrency(b.final_amount)}</strong>` : "-"}</div>
+          </div>
+        `;
+
+        modal.classList.add("open");
+      } catch (e) {
+        showToast(e.message || "Failed to load details", "error");
+      }
+    };
+
+    const closeModal = () => document.getElementById("booking-detail-modal").classList.remove("open");
+    document.getElementById("detail-close-btn").onclick = closeModal;
+    document.getElementById("detail-cancel-btn").onclick = closeModal;
+
+    init();
+  </script>
+
+</body>
+</html>
+

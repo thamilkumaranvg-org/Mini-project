@@ -1,0 +1,30 @@
+# Environment variables (NEVER commit secrets!)
+.env
+backend/.env
+*.env
+!*.env.example
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+

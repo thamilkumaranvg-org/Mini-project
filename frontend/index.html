@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Slot Booking System | Official Produce Selling Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+
+<body>
+
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/" class="brand">
+        <span class="brand-icon">🌾</span>
+        <div class="brand-text">
+          <h1>Farmer Slot Booking</h1>
+          <span>Government Produce Procurement Office</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/login.html" class="btn btn-sm btn-primary">Farmer Login</a>
+        <a href="/register.html" class="btn btn-sm btn-secondary">Register</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section (Unchanged) -->
+    <div style="text-align:center;margin:32px 0 40px 0;">
+      <span class="chip chip-info" style="margin-bottom:12px;">Procurement Slots</span>
+      <h1 style="font-size:2.2rem;margin-bottom:12px;">Zero Queuing Produce Selling</h1>
+      <p style="max-width:680px;margin:0 auto;color:var(--muted);font-size:1.1rem;">
+        Reserve your session slot in advance, show your single-use entry QR code at the gate, receive your sequential
+        queue number, and get your produce verified and paid in cash with zero waiting.
+      </p>
+    </div>
+
+    <!-- Daily Sessions Overview (Unchanged) -->
+    <div class="card" style="background-color:var(--gold-50);border-color:var(--gold-500);margin-bottom:32px;">
+      <div class="card-header" style="border-bottom-color:rgba(242,169,0,0.3);">
+        <h2 class="card-title" style="display:flex;align-items:center;gap:8px;">
+          <span>⏰</span> Daily Session
+        </h2>
+        <span class="chip" style="background-color:#FFFFFF;border:1px solid var(--gold-500);color:#8A5B00;">8 Farmers
+          Per Session • 24 Daily</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+        <div style="background:#FFFFFF;border-radius:var(--radius);padding:16px;border:1px solid rgba(242,169,0,0.25);">
+          <strong style="color:var(--green-900);font-size:1.1rem;display:block;">Session 1</strong>
+          <span style="font-size:1.25rem;font-weight:700;color:var(--green-700);display:block;margin:4px 0;">09:00 -
+            11:00</span>
+          <span style="font-size:0.85rem;color:var(--muted);">Morning Slot • 8 Farmers</span>
+        </div>
+        <div style="background:#FFFFFF;border-radius:var(--radius);padding:16px;border:1px solid rgba(242,169,0,0.25);">
+          <strong style="color:var(--green-900);font-size:1.1rem;display:block;">Session 2</strong>
+          <span style="font-size:1.25rem;font-weight:700;color:var(--green-700);display:block;margin:4px 0;">11:20 -
+            13:20</span>
+          <span style="font-size:0.85rem;color:var(--muted);">Midday Slot • 8 Farmers</span>
+        </div>
+        <div style="background:#FFFFFF;border-radius:var(--radius);padding:16px;border:1px solid rgba(242,169,0,0.25);">
+          <strong style="color:var(--green-900);font-size:1.1rem;display:block;">Session 3</strong>
+          <span style="font-size:1.25rem;font-weight:700;color:var(--green-700);display:block;margin:4px 0;">14:00 -
+            16:00</span>
+          <span style="font-size:0.85rem;color:var(--muted);">Afternoon Slot • 8 Farmers</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW: "How It Works" Tutorial Slideshow Section -->
+    <section class="hiw-section" aria-labelledby="hiw-section-heading">
+      <div class="hiw-header">
+        <h2 id="hiw-section-heading" class="hiw-heading">How It Works</h2>
+        <p class="hiw-subheading">Book once, arrive on time, no waiting in line.</p>
+      </div>
+
+      <!-- Carousel Card Container -->
+      <div class="hiw-card" id="hiw-carousel" role="region" aria-roledescription="carousel" aria-label="How it works">
+        <!-- Top Visual Progress Bar -->
+        <div class="hiw-progress-track" aria-hidden="true">
+          <div class="hiw-progress-bar"></div>
+        </div>
+
+        <!-- Slides Viewport -->
+        <div class="hiw-slides-viewport">
+          <div class="hiw-slides">
+
+            <!-- Step 1 of 5 -->
+            <article class="hiw-slide hiw-active" role="group" aria-label="Step 1 of 5">
+              <div class="hiw-illustration">
+                <svg class="hiw-svg" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect width="240" height="160" rx="14" fill="#E8F5E9"/>
+                  <rect x="35" y="24" width="170" height="112" rx="10" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
+                  <rect x="35" y="24" width="170" height="18" rx="8" fill="#2E7D32"/>
+                  <circle cx="75" cy="78" r="22" fill="#E8F5E9" stroke="#81C784" stroke-width="1.5"/>
+                  <circle cx="75" cy="72" r="9" fill="#2E7D32"/>
+                  <path d="M62 92 C62 84 70 82 75 82 C80 82 88 84 88 92" fill="#2E7D32"/>
+                  <rect x="110" y="56" width="75" height="10" rx="3" fill="#1B5E20"/>
+                  <rect x="110" y="74" width="60" height="7" rx="3" fill="#A5D6A7"/>
+                  <rect x="110" y="87" width="70" height="7" rx="3" fill="#C8E6C9"/>
+                  <circle cx="178" cy="110" r="14" fill="#F2A900" stroke="#FFFFFF" stroke-width="2"/>
+                  <path d="M172 110 L176 114 L184 105" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="hiw-content">
+                <span class="hiw-step-badge">Step 1 of 5</span>
+                <h3 class="hiw-slide-title">Register &amp; Log in</h3>
+                <p class="hiw-slide-desc">Create your farmer profile once with your name, mobile, email and address, then log in.</p>
+              </div>
+            </article>
+
+            <!-- Step 2 of 5 -->
+            <article class="hiw-slide" role="group" aria-label="Step 2 of 5" aria-hidden="true">
+              <div class="hiw-illustration">
+                <svg class="hiw-svg" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect width="240" height="160" rx="14" fill="#FFF6DB"/>
+                  <rect x="30" y="22" width="105" height="116" rx="10" fill="#FFFFFF" stroke="#F2A900" stroke-width="2"/>
+                  <rect x="30" y="22" width="105" height="26" rx="8" fill="#F2A900"/>
+                  <circle cx="55" cy="22" r="4" fill="#D99600"/>
+                  <circle cx="110" cy="22" r="4" fill="#D99600"/>
+                  <rect x="42" y="58" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <rect x="62" y="58" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <rect x="82" y="58" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <rect x="102" y="58" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <rect x="42" y="78" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <rect x="62" y="78" width="18" height="18" rx="4" fill="#2E7D32"/>
+                  <path d="M66 87 L70 91 L76 83" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="86" y="78" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <rect x="42" y="102" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <rect x="62" y="102" width="14" height="14" rx="2" fill="#E8F5E9"/>
+                  <circle cx="178" cy="68" r="32" fill="#FFFFFF" stroke="#2E7D32" stroke-width="3"/>
+                  <circle cx="178" cy="68" r="3" fill="#2E7D32"/>
+                  <line x1="178" y1="68" x2="178" y2="48" stroke="#1B5E20" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="178" y1="68" x2="194" y2="68" stroke="#F2A900" stroke-width="2.5" stroke-linecap="round"/>
+                  <rect x="142" y="112" width="72" height="22" rx="11" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.5"/>
+                  <circle cx="152" cy="123" r="4" fill="#2E7D32"/>
+                  <text x="162" y="127" font-family="sans-serif" font-size="9" font-weight="700" fill="#1B5E20">8 SLOTS</text>
+                </svg>
+              </div>
+              <div class="hiw-content">
+                <span class="hiw-step-badge">Step 2 of 5</span>
+                <h3 class="hiw-slide-title">Choose Day &amp; Session</h3>
+                <p class="hiw-slide-desc">Pick a day this week and a session (09:00-11:00, 11:20-13:20 or 14:00-16:00). Each session shows Available, Almost full or Full. Only 8 farmers per session.</p>
+              </div>
+            </article>
+
+            <!-- Step 3 of 5 -->
+            <article class="hiw-slide" role="group" aria-label="Step 3 of 5" aria-hidden="true">
+              <div class="hiw-illustration">
+                <svg class="hiw-svg" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect width="240" height="160" rx="14" fill="#E8F5E9"/>
+                  <path d="M45 130 C45 80 55 60 70 55 C78 52 88 52 96 55 C111 60 121 80 121 130 Z" fill="#FEEDBB" stroke="#D99600" stroke-width="2"/>
+                  <ellipse cx="83" cy="55" rx="14" ry="4" fill="#D99600"/>
+                  <path d="M83 55 C83 40 92 30 102 24" stroke="#F2A900" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M96 26 L102 24 L100 32" stroke="#F2A900" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M90 34 L96 30 L93 38" stroke="#F2A900" stroke-width="2" stroke-linecap="round"/>
+                  <rect x="62" y="82" width="42" height="24" rx="4" fill="#FFFFFF" stroke="#D99600" stroke-width="1.5"/>
+                  <text x="83" y="93" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="700" fill="#1B5E20">WHEAT</text>
+                  <text x="83" y="102" text-anchor="middle" font-family="sans-serif" font-size="7" font-weight="600" fill="#6B675C">500 KG</text>
+                  <rect x="35" y="130" width="170" height="12" rx="4" fill="#455A64"/>
+                  <rect x="95" y="133" width="50" height="6" rx="2" fill="#81C784"/>
+                  <circle cx="172" cy="70" r="30" fill="#F2A900" stroke="#FFFFFF" stroke-width="3"/>
+                  <circle cx="172" cy="70" r="26" fill="#FFF6DB"/>
+                  <text x="172" y="78" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="700" fill="#D99600">₹</text>
+                  <rect x="145" y="108" width="55" height="18" rx="9" fill="#2E7D32"/>
+                  <text x="172.5" y="120" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="700" fill="#FFFFFF">MSP RATE</text>
+                </svg>
+              </div>
+              <div class="hiw-content">
+                <span class="hiw-step-badge">Step 3 of 5</span>
+                <h3 class="hiw-slide-title">Enter Crop &amp; Quantity</h3>
+                <p class="hiw-slide-desc">Select your crop and the quantity in kg. See the estimated price in rupees (MSP rate) before you confirm the booking.</p>
+              </div>
+            </article>
+
+            <!-- Step 4 of 5 -->
+            <article class="hiw-slide" role="group" aria-label="Step 4 of 5" aria-hidden="true">
+              <div class="hiw-illustration">
+                <svg class="hiw-svg" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect width="240" height="160" rx="14" fill="#FFF6DB"/>
+                  <path d="M55 22 h130 v116 l-8 -5 l-8 5 l-8 -5 l-8 5 l-8 -5 l-8 5 l-8 -5 l-8 5 l-8 -5 l-8 5 l-8 -5 l-8 5 l-8 -5 l-8 5 l-8 -5 l-8 5 Z" fill="#FFFFFF" stroke="#E4DFD0" stroke-width="2"/>
+                  <rect x="75" y="32" width="60" height="6" rx="2" fill="#2E7D32"/>
+                  <rect x="145" y="32" width="25" height="6" rx="2" fill="#A5D6A7"/>
+                  <rect x="85" y="46" width="70" height="70" rx="6" fill="#FBF8F1" stroke="#2E7D32" stroke-width="1.5"/>
+                  <rect x="91" y="52" width="18" height="18" rx="3" fill="#2E7D32"/>
+                  <rect x="94" y="55" width="12" height="12" rx="2" fill="#FFFFFF"/>
+                  <rect x="97" y="58" width="6" height="6" rx="1" fill="#2E7D32"/>
+                  <rect x="131" y="52" width="18" height="18" rx="3" fill="#2E7D32"/>
+                  <rect x="134" y="55" width="12" height="12" rx="2" fill="#FFFFFF"/>
+                  <rect x="137" y="58" width="6" height="6" rx="1" fill="#2E7D32"/>
+                  <rect x="91" y="92" width="18" height="18" rx="3" fill="#2E7D32"/>
+                  <rect x="94" y="95" width="12" height="12" rx="2" fill="#FFFFFF"/>
+                  <rect x="97" y="98" width="6" height="6" rx="1" fill="#2E7D32"/>
+                  <rect x="114" y="54" width="4" height="4" fill="#1B5E20"/>
+                  <rect x="122" y="58" width="4" height="4" fill="#1B5E20"/>
+                  <rect x="113" y="66" width="6" height="6" fill="#1B5E20"/>
+                  <rect x="123" y="70" width="5" height="5" fill="#1B5E20"/>
+                  <rect x="133" y="76" width="4" height="8" fill="#1B5E20"/>
+                  <rect x="114" y="80" width="5" height="5" fill="#1B5E20"/>
+                  <rect x="123" y="86" width="6" height="6" fill="#1B5E20"/>
+                  <rect x="114" y="96" width="4" height="8" fill="#1B5E20"/>
+                  <rect x="133" y="96" width="6" height="6" fill="#1B5E20"/>
+                  <circle cx="170" cy="108" r="14" fill="#2E7D32" stroke="#FFFFFF" stroke-width="2"/>
+                  <path d="M165 108 L168 111 L175 104" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="hiw-content">
+                <span class="hiw-step-badge">Step 4 of 5</span>
+                <h3 class="hiw-slide-title">Get Your Receipt &amp; QR</h3>
+                <p class="hiw-slide-desc">Your receipt with a QR code is ready instantly. It is valid only for your booked session. If you miss the session, book a new slot.</p>
+              </div>
+            </article>
+
+            <!-- Step 5 of 5 -->
+            <article class="hiw-slide" role="group" aria-label="Step 5 of 5" aria-hidden="true">
+              <div class="hiw-illustration">
+                <svg class="hiw-svg" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect width="240" height="160" rx="14" fill="#E8F5E9"/>
+                  <rect x="30" y="26" width="58" height="108" rx="10" fill="#2E7D32" stroke="#1B5E20" stroke-width="2"/>
+                  <rect x="35" y="36" width="48" height="84" rx="5" fill="#FFFFFF"/>
+                  <line x1="38" y1="74" x2="80" y2="74" stroke="#F2A900" stroke-width="2.5" stroke-dasharray="4,2"/>
+                  <rect x="44" y="55" width="30" height="30" rx="3" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1"/>
+                  <circle cx="118" cy="80" r="24" fill="#2E7D32" stroke="#FFFFFF" stroke-width="3"/>
+                  <path d="M109 80 L115 86 L127 74" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="156" y="82" width="62" height="34" rx="4" fill="#C8E6C9" stroke="#2E7D32" stroke-width="1.5"/>
+                  <rect x="152" y="74" width="62" height="34" rx="4" fill="#81C784" stroke="#2E7D32" stroke-width="1.5"/>
+                  <rect x="148" y="66" width="62" height="34" rx="4" fill="#FFFFFF" stroke="#2E7D32" stroke-width="2"/>
+                  <circle cx="179" cy="83" r="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1"/>
+                  <text x="179" y="88" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="700" fill="#1B5E20">₹</text>
+                  <path d="M198 48 L200 42 L202 48 L208 50 L202 52 L200 58 L198 52 L192 50 Z" fill="#F2A900"/>
+                  <path d="M152 44 L153 40 L154 44 L158 45 L154 46 L153 50 L152 46 L148 45 Z" fill="#F2A900"/>
+                </svg>
+              </div>
+              <div class="hiw-content">
+                <span class="hiw-step-badge">Step 5 of 5</span>
+                <h3 class="hiw-slide-title">Arrive, Scan &amp; Get Paid</h3>
+                <p class="hiw-slide-desc">Come to the office during your session and show the QR at the gate. A green tick confirms you, and you get your queue number. When the officer calls you, your produce is weighed and you are paid in cash. You are notified at every step.</p>
+                <div class="hiw-slide-cta">
+                  <a href="/register.html" class="btn btn-primary hiw-cta-btn">Get Started - Register</a>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </div>
+
+        <!-- Controls Bar -->
+        <div class="hiw-controls">
+          <!-- Dots Indicator -->
+          <div class="hiw-dots" role="tablist" aria-label="Slideshow steps">
+            <button class="hiw-dot hiw-active" role="tab" aria-selected="true" aria-label="Go to slide 1 of 5">
+              <span class="hiw-dot-indicator"></span>
+            </button>
+            <button class="hiw-dot" role="tab" aria-selected="false" tabindex="-1" aria-label="Go to slide 2 of 5">
+              <span class="hiw-dot-indicator"></span>
+            </button>
+            <button class="hiw-dot" role="tab" aria-selected="false" tabindex="-1" aria-label="Go to slide 3 of 5">
+              <span class="hiw-dot-indicator"></span>
+            </button>
+            <button class="hiw-dot" role="tab" aria-selected="false" tabindex="-1" aria-label="Go to slide 4 of 5">
+              <span class="hiw-dot-indicator"></span>
+            </button>
+            <button class="hiw-dot" role="tab" aria-selected="false" tabindex="-1" aria-label="Go to slide 5 of 5">
+              <span class="hiw-dot-indicator"></span>
+            </button>
+          </div>
+
+          <!-- Play / Pause Toggle Button -->
+          <button class="hiw-play-pause-btn" aria-label="Pause slideshow autoplay">
+            <span class="hiw-play-pause-icon" aria-hidden="true">⏸</span>
+            <span class="hiw-play-pause-label hiw-btn-label">Pause</span>
+          </button>
+
+          <!-- Prev / Next Navigation Arrows -->
+          <div class="hiw-nav-group">
+            <button class="hiw-nav-btn hiw-prev-btn" aria-label="Previous step">‹</button>
+            <button class="hiw-nav-btn hiw-next-btn" aria-label="Next step">›</button>
+          </div>
+        </div>
+
+        <!-- Screen reader live announcement region -->
+        <div id="hiw-live-announcement" class="hiw-sr-only" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    </section>
+
+    <!-- REDESIGNED: Compact "Select Your Portal" Section -->
+    <section class="portal-section" aria-labelledby="portal-section-heading">
+      <h2 id="portal-section-heading" class="portal-heading">Select Your Portal</h2>
+      <div class="portal-grid">
+
+        <!-- 1. Farmer Portal Card -->
+        <div class="portal-card portal-card--farmer">
+          <div>
+            <div class="portal-card-header">
+              <span class="portal-icon" aria-hidden="true">👨‍🌾</span>
+              <h3 class="portal-title">Farmer Portal</h3>
+            </div>
+            <p class="portal-desc">Book slots, transparent MSP &amp; live queue tracking</p>
+          </div>
+          <div class="portal-actions">
+            <a href="/login.html" class="btn btn-sm btn-primary portal-btn-half">Farmer Login</a>
+            <a href="/register.html" class="btn btn-sm btn-secondary portal-btn-half">Register</a>
+          </div>
+        </div>
+
+        <!-- 2. Gate Scanner Staff Card -->
+        <div class="portal-card portal-card--scanner">
+          <div>
+            <div class="portal-card-header">
+              <span class="portal-icon" aria-hidden="true">📷</span>
+              <h3 class="portal-title">Gate Scanner Staff</h3>
+            </div>
+            <p class="portal-desc">QR check-in &amp; live FIFO queue management</p>
+          </div>
+          <div class="portal-actions">
+            <a href="/scanner/login.html" class="btn btn-sm btn-secondary btn-block portal-btn-scanner">Scanner Login</a>
+          </div>
+        </div>
+
+        <!-- 3. Desk Officer Counter Card -->
+        <div class="portal-card portal-card--officer">
+          <div>
+            <div class="portal-card-header">
+              <span class="portal-icon" aria-hidden="true">⚖️</span>
+              <h3 class="portal-title">Desk Officer Counter</h3>
+            </div>
+            <p class="portal-desc">Call farmers, verify weight &amp; record cash payouts</p>
+          </div>
+          <div class="portal-actions">
+            <a href="/officer/login.html" class="btn btn-sm btn-secondary btn-block portal-btn-officer">Officer Login</a>
+          </div>
+        </div>
+
+        <!-- 4. Administrator Card -->
+        <div class="portal-card portal-card--admin">
+          <div>
+            <div class="portal-card-header">
+              <span class="portal-icon" aria-hidden="true">📊</span>
+              <h3 class="portal-title">Administrator</h3>
+            </div>
+            <p class="portal-desc">Monitor live sessions, MSP rates &amp; staff accounts</p>
+          </div>
+          <div class="portal-actions">
+            <a href="/admin/login.html" class="btn btn-sm btn-secondary btn-block portal-btn-admin">Admin Login</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer (Unchanged) -->
+  <footer class="app-footer">
+    Farmer Slot Booking System • Ministry of Agriculture &amp; Farmer Welfare • Asia/Kolkata
+  </footer>
+
+  <script type="module" src="/js/index.js"></script>
+</body>
+
+</html>

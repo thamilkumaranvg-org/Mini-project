@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Receipt & Entry Pass | Farmer Slot Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/print.css">
+</head>
+<body>
+
+  <header class="app-header no-print">
+    <div class="header-container">
+      <a href="/customer/slots.html" class="brand">
+        <span class="brand-icon">🌾</span>
+        <div class="brand-text">
+          <h1>Farmer Portal</h1>
+          <span id="header-user-name">Loading...</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/customer/slots.html" class="nav-link">Book Slots</a>
+        <a href="/customer/bookings.html" class="nav-link">My Bookings</a>
+        <a href="/customer/profile.html" class="nav-link">Profile</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <!-- Top Action Bar (no-print) -->
+    <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <a href="/customer/bookings.html" class="btn btn-secondary btn-sm">← Back to My Bookings</a>
+      <div style="display:flex;gap:10px;">
+        <button id="cancel-booking-btn" class="btn btn-danger btn-sm" style="display:none;">Cancel Booking</button>
+        <button onclick="window.print()" class="btn btn-primary btn-sm">🖨️ Print Receipt</button>
+      </div>
+    </div>
+
+    <!-- Official Printable Receipt Card -->
+    <div class="card" id="receipt-card" style="max-width:760px;margin:0 auto;box-shadow:var(--shadow);border:2px solid var(--border);">
+      
+      <!-- Receipt Header -->
+      <div style="text-align:center;border-bottom:2px solid var(--green-900);padding-bottom:16px;margin-bottom:20px;">
+        <div style="font-size:2rem;margin-bottom:4px;">🌾</div>
+        <h2 style="color:var(--green-900);font-size:1.4rem;margin:0;">Government Produce Procurement Office</h2>
+        <p style="color:var(--muted);font-size:0.85rem;margin:2px 0 0 0;">Ministry of Agriculture & Farmer Welfare • Session Selling Pass</p>
+        <div style="margin-top:12px;display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span style="font-family:monospace;font-size:1.15rem;font-weight:700;color:var(--text);background:var(--cream);padding:4px 12px;border-radius:4px;border:1px solid var(--border);" id="r-receipt-no">Loading...</span>
+          <span class="chip" id="r-status-chip">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Expired / Missed Alert Banner -->
+      <div id="expired-banner" style="display:none;background:#FFEBEE;border:2px solid #D32F2F;border-radius:var(--radius);padding:18px;margin-bottom:24px;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:4px;">⚠️</div>
+        <h3 style="color:#B71C1C;margin:0 0 6px 0;">SLOT EXPIRED / MISSED</h3>
+        <p style="color:#2B2A26;font-size:0.95rem;margin-bottom:14px;">
+          This booking is no longer valid because check-in was not scanned before the session ended. You must reserve a new slot.
+        </p>
+        <a href="/customer/slots.html" class="btn btn-primary btn-sm no-print">Book a New Slot</a>
+      </div>
+
+      <!-- Dynamic Status Progression Timeline -->
+      <div id="timeline-container" style="display:flex;justify-content:space-between;margin-bottom:28px;position:relative;padding:0 10px;">
+        <div style="position:absolute;top:18px;left:40px;right:40px;height:4px;background:var(--border);z-index:1;"></div>
+        <div id="timeline-progress" style="position:absolute;top:18px;left:40px;height:4px;background:var(--green-700);z-index:2;width:0%;transition:width 0.4s ease;"></div>
+
+        <div style="position:relative;z-index:3;text-align:center;">
+          <div class="timeline-step" id="step-booked" style="width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">1</div>
+          <span style="font-size:0.8rem;font-weight:600;display:block;margin-top:6px;">Booked</span>
+        </div>
+        <div style="position:relative;z-index:3;text-align:center;">
+          <div class="timeline-step" id="step-checkedin" style="width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">2</div>
+          <span style="font-size:0.8rem;font-weight:600;display:block;margin-top:6px;">Gate Checked In</span>
+        </div>
+        <div style="position:relative;z-index:3;text-align:center;">
+          <div class="timeline-step" id="step-called" style="width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">3</div>
+          <span style="font-size:0.8rem;font-weight:600;display:block;margin-top:6px;">Counter Called</span>
+        </div>
+        <div style="position:relative;z-index:3;text-align:center;">
+          <div class="timeline-step" id="step-completed" style="width:36px;height:36px;border-radius:50%;background:#FFFFFF;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto;font-weight:700;">4</div>
+          <span style="font-size:0.8rem;font-weight:600;display:block;margin-top:6px;">Verified & Paid</span>
+        </div>
+      </div>
+
+      <!-- QR & Entry Pass Body -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-bottom:24px;">
+        
+        <!-- QR Code Block -->
+        <div style="text-align:center;padding:16px;background:var(--cream);border-radius:var(--radius);border:1px solid var(--border);">
+          <div id="qr-container" class="receipt-qr" style="min-height:200px;display:flex;align-items:center;justify-content:center;">
+            <span style="color:var(--muted);">Generating QR...</span>
+          </div>
+          <div id="queue-display-box" style="margin-top:12px;display:none;background:var(--green-50);border:1px solid #A5D6A7;border-radius:var(--radius-sm);padding:8px 12px;">
+            <span style="font-size:0.85rem;color:var(--green-900);display:block;">Assigned Queue Position:</span>
+            <span id="queue-number-val" style="font-size:2rem;font-weight:800;color:var(--green-700);">#1</span>
+          </div>
+          <p id="r-validity-text" style="font-size:0.8rem;color:var(--muted);margin-top:10px;line-height:1.4;">
+            Show this QR code at the office gate during your session window.
+          </p>
+        </div>
+
+        <!-- Receipt Details Table -->
+        <div>
+          <table class="receipt-table" style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+            <tr>
+              <td style="padding:8px 0;color:var(--muted);width:45%;">Farmer Name:</td>
+              <td id="r-farmer-name" style="font-weight:700;color:var(--text);">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:var(--muted);">Session Date:</td>
+              <td id="r-session-date" style="font-weight:600;color:var(--text);">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:var(--muted);">Session Window:</td>
+              <td id="r-session-timing" style="font-weight:600;color:var(--green-900);">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:var(--muted);">Produce Crop:</td>
+              <td id="r-crop-name" style="font-weight:600;color:var(--text);">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:var(--muted);">Declared Weight:</td>
+              <td id="r-declared-qty" style="font-weight:600;color:var(--text);">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;color:var(--muted);">MSP Rate:</td>
+              <td id="r-price-rate" style="font-weight:600;color:var(--text);">-</td>
+            </tr>
+            <tr style="border-top:1px solid var(--border);">
+              <td style="padding:10px 0;color:var(--muted);">Estimated Amount:</td>
+              <td id="r-estimated-amount" style="font-weight:700;color:var(--text);font-size:1.1rem;">-</td>
+            </tr>
+            <!-- Completed / Verified Section -->
+            <tr id="row-verified-qty" style="display:none;background:var(--green-50);">
+              <td style="padding:8px 10px;font-weight:600;color:var(--green-900);">Verified Weight:</td>
+              <td id="r-verified-qty" style="padding:8px 10px;font-weight:700;color:var(--green-900);">-</td>
+            </tr>
+            <tr id="row-final-amount" style="display:none;background:var(--green-50);">
+              <td style="padding:8px 10px;font-weight:600;color:var(--green-900);">Final Amount Paid:</td>
+              <td id="r-final-amount" style="padding:8px 10px;font-weight:800;color:var(--green-700);font-size:1.2rem;">-</td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Security / Office Footer -->
+      <div style="border-top:1px dashed var(--border);padding-top:14px;font-size:0.8rem;color:var(--muted);text-align:center;">
+        QR code token is cryptographically secure and single-use • Enforces Asia/Kolkata timing • Ministry of Agriculture
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="app-footer no-print">
+    Farmer Slot Booking System • Ministry of Agriculture & Farmer Welfare
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatCurrency, formatDate, showConfirmModal } from "/js/ui.js";
+    import { SmartPoller } from "/js/polling.js";
+
+    let currentUser = null;
+    let bookingId = null;
+    let poller = null;
+
+    async function init() {
+      currentUser = await requireAuth("customer");
+      if (!currentUser) return;
+      setupHeader(currentUser, "FARMER");
+
+      const params = new URLSearchParams(window.location.search);
+      bookingId = params.get("id");
+
+      if (!bookingId) {
+        showToast("No booking receipt specified", "error");
+        setTimeout(() => window.location.href = "/customer/bookings.html", 1000);
+        return;
+      }
+
+      await loadReceipt();
+
+      // Poll every 5 seconds for status updates while booking is active
+      poller = new SmartPoller(loadReceipt, 5000);
+      poller.start();
+    }
+
+    async function loadReceipt() {
+      try {
+        const b = await apiRequest(`/api/bookings/${bookingId}`);
+        renderReceipt(b);
+
+        // Stop poller if booking reached terminal state
+        if (["completed", "missed", "no_show", "cancelled"].includes(b.status)) {
+          if (poller) poller.stop();
+        }
+      } catch (e) {
+        showToast(e.message || "Failed to load receipt", "error");
+      }
+    }
+
+    function renderReceipt(b) {
+      document.getElementById("r-receipt-no").textContent = b.receipt_no;
+      document.getElementById("r-farmer-name").textContent = b.receipt_name;
+      document.getElementById("r-session-date").textContent = formatDate(b.session_date);
+      document.getElementById("r-session-timing").textContent = `${b.session_name} (${b.start_time} - ${b.end_time})`;
+      document.getElementById("r-crop-name").textContent = b.crop_name;
+      document.getElementById("r-declared-qty").textContent = `${b.declared_quantity_kg} kg`;
+      document.getElementById("r-price-rate").textContent = `₹${b.price_per_kg.toFixed(2)} / kg`;
+      document.getElementById("r-estimated-amount").textContent = formatCurrency(b.estimated_amount);
+      document.getElementById("r-validity-text").textContent = b.validity_text;
+
+      // Status Chip
+      const chip = document.getElementById("r-status-chip");
+      chip.className = "chip";
+      if (b.status === "booked") {
+        chip.classList.add("chip-info");
+        chip.textContent = "Booked (Awaiting Gate Check-In)";
+      } else if (b.status === "checked_in") {
+        chip.classList.add("chip-available");
+        chip.textContent = `Checked In (Queue #${b.queue_number})`;
+      } else if (b.status === "called") {
+        chip.classList.add("chip-almost");
+        chip.textContent = "Called to Desk Counter";
+      } else if (b.status === "completed") {
+        chip.classList.add("chip-available");
+        chip.textContent = "Completed & Paid in Cash";
+      } else if (b.status === "missed") {
+        chip.classList.add("chip-full");
+        chip.textContent = "Missed / Expired";
+      } else if (b.status === "no_show") {
+        chip.classList.add("chip-full");
+        chip.textContent = "Marked No-Show";
+      } else if (b.status === "cancelled") {
+        chip.classList.add("chip-disabled");
+        chip.textContent = "Cancelled";
+      }
+
+      // Expired banner
+      const expBanner = document.getElementById("expired-banner");
+      expBanner.style.display = (b.is_expired || b.status === "missed") ? "block" : "none";
+
+      // QR Code rendering
+      const qrContainer = document.getElementById("qr-container");
+      if (b.qr_png_data_uri) {
+        qrContainer.innerHTML = `<img src="${b.qr_png_data_uri}" alt="Entry QR" style="max-width:200px;width:100%;height:auto;border-radius:8px;border:1px solid var(--border);">`;
+      } else if (b.status === "checked_in" || b.status === "called" || b.status === "completed") {
+        qrContainer.innerHTML = `
+          <div style="padding:20px;color:var(--green-700);">
+            <div style="font-size:3rem;margin-bottom:6px;">✅</div>
+            <strong style="font-size:1.1rem;">QR Scanned at Gate</strong>
+          </div>
+        `;
+      } else {
+        qrContainer.innerHTML = `
+          <div style="padding:20px;color:var(--muted);">
+            <div style="font-size:2.5rem;margin-bottom:6px;">🚫</div>
+            <span>QR Not Available (${b.status})</span>
+          </div>
+        `;
+      }
+
+      // Queue box
+      const queueBox = document.getElementById("queue-display-box");
+      if (b.queue_number) {
+        queueBox.style.display = "block";
+        document.getElementById("queue-number-val").textContent = `#${b.queue_number}`;
+      } else {
+        queueBox.style.display = "none";
+      }
+
+      // Timeline progression
+      updateTimeline(b.status);
+
+      // Verified & Completed fields
+      if (b.status === "completed") {
+        document.getElementById("row-verified-qty").style.display = "table-row";
+        document.getElementById("row-final-amount").style.display = "table-row";
+        document.getElementById("r-verified-qty").textContent = `${b.verified_quantity_kg} kg`;
+        document.getElementById("r-final-amount").textContent = formatCurrency(b.final_amount);
+      }
+
+      // Cancel button
+      const cancelBtn = document.getElementById("cancel-booking-btn");
+      if (b.can_cancel) {
+        cancelBtn.style.display = "inline-flex";
+        cancelBtn.onclick = () => confirmCancellation(b.id);
+      } else {
+        cancelBtn.style.display = "none";
+      }
+    }
+
+    function updateTimeline(status) {
+      const pBar = document.getElementById("timeline-progress");
+      const steps = ["step-booked", "step-checkedin", "step-called", "step-completed"];
+
+      const activeIdx = status === "booked" ? 0
+                      : status === "checked_in" ? 1
+                      : status === "called" ? 2
+                      : status === "completed" ? 3 : -1;
+
+      if (activeIdx >= 0) {
+        pBar.style.width = `${(activeIdx / 3) * 100}%`;
+      } else {
+        pBar.style.width = "0%";
+      }
+
+      steps.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (idx <= activeIdx) {
+          el.style.borderColor = "var(--green-700)";
+          el.style.backgroundColor = "var(--green-700)";
+          el.style.color = "#FFFFFF";
+        } else {
+          el.style.borderColor = "var(--border)";
+          el.style.backgroundColor = "#FFFFFF";
+          el.style.color = "var(--muted)";
+        }
+      });
+    }
+
+    function confirmCancellation(bId) {
+      showConfirmModal(
+        "Cancel Slot Booking",
+        "Are you sure you want to cancel this booking? Your seat will be released immediately for other farmers.",
+        async () => {
+          try {
+            await apiRequest(`/api/bookings/${bId}/cancel`, { method: "POST" });
+            showToast("Booking cancelled successfully", "success");
+            await loadReceipt();
+          } catch (e) {
+            showToast(e.message || "Failed to cancel booking", "error");
+          }
+        },
+        "Confirm Cancellation",
+        true
+      );
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
+

@@ -1,0 +1,53 @@
+/* ======================================================================
+   Print Stylesheet for Official Produce Selling Slot Receipt
+   ====================================================================== */
+
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 12pt !important;
+  }
+
+  .app-header,
+  .app-footer,
+  .btn,
+  .no-print,
+  #toast-container,
+  .notif-dropdown {
+    display: none !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .card {
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+    padding: 24px !important;
+    margin: 0 auto !important;
+    max-width: 700px !important;
+    page-break-inside: avoid;
+  }
+
+  .receipt-qr img {
+    max-width: 180px !important;
+    height: auto !important;
+  }
+
+  .receipt-table {
+    border: 1px solid #000000 !important;
+    width: 100% !important;
+  }
+
+  .receipt-table th,
+  .receipt-table td {
+    border: 1px solid #000000 !important;
+    padding: 8px !important;
+    font-size: 11pt !important;
+  }
+}
+

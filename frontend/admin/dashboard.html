@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Admin Dashboard | Farmer Slot Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#263238;">
+    <div class="header-container">
+      <a href="/admin/dashboard.html" class="brand">
+        <span class="brand-icon">📊</span>
+        <div class="brand-text">
+          <h1>Admin Console</h1>
+          <span id="header-user-name">Administrator</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/admin/dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="/admin/bookings.html" class="nav-link">Bookings</a>
+        <a href="/admin/customers.html" class="nav-link">Farmers</a>
+        <a href="/admin/crops.html" class="nav-link">Crops & Prices</a>
+        <a href="/admin/staff.html" class="nav-link">Staff Accounts</a>
+        <a href="/admin/audit.html" class="nav-link">Audit Log</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <!-- Top Metrics Overview -->
+    <div style="margin-bottom:24px;">
+      <h1 style="font-size:1.8rem;color:var(--green-900);margin-bottom:4px;">Procurement Executive Dashboard</h1>
+      <p style="color:var(--muted);font-size:0.95rem;">Live system overview across today's sessions and future 7-day bookings</p>
+    </div>
+
+    <!-- Totals Today Stat Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:28px;">
+      <div class="card" style="margin:0;border-left:5px solid var(--green-700);">
+        <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">FARMERS SERVED TODAY</span>
+        <div id="stat-farmers-today" style="font-size:2rem;font-weight:800;color:var(--green-700);margin-top:4px;">-</div>
+      </div>
+      <div class="card" style="margin:0;border-left:5px solid #0288D1;">
+        <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">TOTAL PRODUCE VERIFIED</span>
+        <div id="stat-kg-today" style="font-size:2rem;font-weight:800;color:#0288D1;margin-top:4px;">- kg</div>
+      </div>
+      <div class="card" style="margin:0;border-left:5px solid var(--gold-500);">
+        <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">TOTAL CASH SETTLED</span>
+        <div id="stat-inr-today" style="font-size:2rem;font-weight:800;color:#B45309;margin-top:4px;">₹0.00</div>
+      </div>
+    </div>
+
+    <!-- Active Current Session Card -->
+    <div class="card" style="background:var(--cream);border:2px solid var(--border);margin-bottom:28px;">
+      <div class="card-header" style="border-bottom:1px solid var(--border);">
+        <h3 class="card-title">● Live Active Session Status</h3>
+        <span class="chip chip-info" id="current-session-timing">Loading...</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;text-align:center;">
+        <div style="background:#FFFFFF;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);">BOOKED</span>
+          <div id="cs-booked" style="font-size:1.5rem;font-weight:700;">-</div>
+        </div>
+        <div style="background:#FFFFFF;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);">CHECKED IN</span>
+          <div id="cs-checkedin" style="font-size:1.5rem;font-weight:700;color:var(--green-700);">-</div>
+        </div>
+        <div style="background:#FFFFFF;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);">WAITING</span>
+          <div id="cs-waiting" style="font-size:1.5rem;font-weight:700;color:#0277BD;">-</div>
+        </div>
+        <div style="background:#FFFFFF;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);">BEING SERVED</span>
+          <div id="cs-serving" style="font-size:1.5rem;font-weight:700;color:#E65100;">-</div>
+        </div>
+        <div style="background:#FFFFFF;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);">COMPLETED</span>
+          <div id="cs-completed" style="font-size:1.5rem;font-weight:700;color:var(--green-700);">-</div>
+        </div>
+        <div style="background:#FFFFFF;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);">NO-SHOWS</span>
+          <div id="cs-noshow" style="font-size:1.5rem;font-weight:700;color:#D32F2F;">-</div>
+        </div>
+        <div style="background:#FFFFFF;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:0.75rem;color:var(--muted);">SEATS LEFT</span>
+          <div id="cs-remaining" style="font-size:1.5rem;font-weight:700;">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's 3 Sessions Grid -->
+    <div class="card" style="margin-bottom:28px;">
+      <div class="card-header">
+        <h3 class="card-title">Today's Daily Sessions Overview (24 Capacity)</h3>
+      </div>
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Session</th>
+              <th>Timings</th>
+              <th>Status</th>
+              <th>Booked / Cap</th>
+              <th>Checked In</th>
+              <th>Waiting</th>
+              <th>Completed</th>
+              <th>No-Shows</th>
+              <th>Seats Left</th>
+            </tr>
+          </thead>
+          <tbody id="today-sessions-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted);">Loading sessions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7-Day Future Bookings Grid -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Next 7 Days Advance Bookings Matrix</h3>
+      </div>
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Day</th>
+              <th>Session 1 (09:00 - 11:00)</th>
+              <th>Session 2 (11:20 - 13:20)</th>
+              <th>Session 3 (14:00 - 16:00)</th>
+              <th>Total Booked</th>
+            </tr>
+          </thead>
+          <tbody id="future-matrix-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted);">Loading advance bookings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • System Administration Console • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatCurrency, formatDate, escapeHTML } from "/js/ui.js";
+    import { SmartPoller } from "/js/polling.js";
+
+    let currentUser = null;
+    let poller = null;
+
+    async function init() {
+      currentUser = await requireAuth("admin");
+      if (!currentUser) return;
+      setupHeader(currentUser, "ADMINISTRATOR");
+
+      await loadDashboard();
+
+      // Poll every 10 seconds
+      poller = new SmartPoller(loadDashboard, 10000);
+      poller.start();
+    }
+
+    async function loadDashboard() {
+      try {
+        const d = await apiRequest("/api/admin/dashboard");
+
+        // Totals
+        document.getElementById("stat-farmers-today").textContent = d.totals_today.customers_served_today;
+        document.getElementById("stat-kg-today").textContent = `${d.totals_today.total_kg_verified_today} kg`;
+        document.getElementById("stat-inr-today").textContent = formatCurrency(d.totals_today.total_inr_paid_today);
+
+        // Active Session
+        const cs = d.current_session;
+        if (cs) {
+          document.getElementById("current-session-timing").textContent = `${cs.name} (${cs.timing}) - ${cs.status.toUpperCase()}`;
+          document.getElementById("cs-booked").textContent = `${cs.booked} / ${cs.capacity}`;
+          document.getElementById("cs-checkedin").textContent = cs.checked_in;
+          document.getElementById("cs-waiting").textContent = cs.waiting;
+          document.getElementById("cs-serving").textContent = cs.serving;
+          document.getElementById("cs-completed").textContent = cs.completed;
+          document.getElementById("cs-noshow").textContent = cs.no_shows;
+          document.getElementById("cs-remaining").textContent = cs.seats_remaining;
+        }
+
+        // Today's Sessions Table
+        const todayTbody = document.getElementById("today-sessions-tbody");
+        todayTbody.innerHTML = d.today_sessions.map(s => `
+          <tr>
+            <td><strong>${escapeHTML(s.name)}</strong></td>
+            <td>${s.timing}</td>
+            <td><span class="chip ${s.status === "in_progress" ? "chip-available" : s.status === "upcoming" ? "chip-almost" : "chip-disabled"}">${s.status.toUpperCase()}</span></td>
+            <td>${s.booked} / ${s.capacity}</td>
+            <td><strong style="color:var(--green-700);">${s.checked_in}</strong></td>
+            <td><strong style="color:#0277BD;">${s.waiting}</strong></td>
+            <td><strong style="color:var(--green-700);">${s.completed}</strong></td>
+            <td><strong style="color:#D32F2F;">${s.no_shows}</strong></td>
+            <td><strong>${s.seats_remaining}</strong></td>
+          </tr>
+        `).join("");
+
+        // Future 7-day Matrix
+        const matrixTbody = document.getElementById("future-matrix-tbody");
+        matrixTbody.innerHTML = d.next_7_days.map(day => {
+          const s1 = day.sessions.find(x => x.session_id === 1) || { booked: 0, capacity: 8 };
+          const s2 = day.sessions.find(x => x.session_id === 2) || { booked: 0, capacity: 8 };
+          const s3 = day.sessions.find(x => x.session_id === 3) || { booked: 0, capacity: 8 };
+          const totalBooked = s1.booked + s2.booked + s3.booked;
+
+          return `
+            <tr>
+              <td><strong>${formatDate(day.date)}</strong></td>
+              <td>${day.day_name}</td>
+              <td>${s1.booked} / ${s1.capacity}</td>
+              <td>${s2.booked} / ${s2.capacity}</td>
+              <td>${s3.booked} / ${s3.capacity}</td>
+              <td><strong>${totalBooked} / 24</strong></td>
+            </tr>
+          `;
+        }).join("");
+
+      } catch (e) {
+        console.warn("Dashboard fetch failed", e);
+      }
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
+

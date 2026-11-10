@@ -1,0 +1,627 @@
+/* ======================================================================
+   Index Page Specific Styles - Farmer Slot Booking System
+   Namespaced: .hiw-* (How It Works slideshow) and .portal-* (Portals grid)
+   Uses existing theme tokens from theme.css (green/gold/cream palette)
+   ====================================================================== */
+
+/* ----------------------------------------------------------------------
+   1. "HOW IT WORKS" SLIDESHOW SECTION (.hiw-*)
+   ---------------------------------------------------------------------- */
+.hiw-section {
+  max-width: 920px;
+  margin: 40px auto 48px auto;
+  padding: 0 16px;
+}
+
+.hiw-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.hiw-heading {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--green-900);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.hiw-subheading {
+  font-size: 1.05rem;
+  color: var(--muted);
+  margin: 0 auto;
+  max-width: 620px;
+}
+
+/* Card Container */
+.hiw-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Top Progress Bar */
+.hiw-progress-track {
+  height: 5px;
+  background: var(--green-50);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.hiw-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-700), var(--gold-500));
+  width: 20%;
+  transition: width 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Progressive Enhancement Default: Stacked list if JS is disabled */
+.hiw-slides {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.hiw-slide {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-light);
+}
+
+/* When JS is enabled, .hiw-interactive is added */
+.hiw-card.hiw-interactive .hiw-slides-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: 290px;
+}
+
+.hiw-card.hiw-interactive .hiw-slides {
+  position: relative;
+  display: block;
+  padding: 0;
+  gap: 0;
+  width: 100%;
+  min-height: 290px;
+}
+
+.hiw-card.hiw-interactive .hiw-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 28px 32px;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(30px);
+  transition: opacity 400ms ease, transform 400ms ease, visibility 400ms;
+  border: none;
+  background: transparent;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.hiw-card.hiw-interactive .hiw-slide.hiw-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  z-index: 2;
+}
+
+.hiw-card.hiw-interactive .hiw-slide.hiw-prev-slide {
+  transform: translateX(-30px);
+}
+
+/* Illustration styling */
+.hiw-illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  padding: 16px;
+  background: var(--cream);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  max-width: 100%;
+}
+
+.hiw-svg {
+  width: 100%;
+  height: auto;
+  max-height: 160px;
+  display: block;
+}
+
+/* Slide Content */
+.hiw-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.hiw-step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-50);
+  color: var(--green-800);
+  border: 1px solid var(--green-100);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-bottom: 10px;
+}
+
+.hiw-step-badge::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green-700);
+}
+
+.hiw-slide-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--green-900);
+  margin: 0 0 10px 0;
+  line-height: 1.25;
+}
+
+.hiw-slide-desc {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text);
+  margin: 0 0 16px 0;
+  max-width: 520px;
+}
+
+.hiw-slide-cta {
+  margin-top: 4px;
+}
+
+.hiw-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+/* Controls Bar (shown only when interactive) */
+.hiw-controls {
+  display: none;
+}
+
+.hiw-card.hiw-interactive .hiw-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: #FAF8F2;
+  border-top: 1px solid var(--border-light);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Dots */
+.hiw-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hiw-dot {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  touch-action: manipulation;
+}
+
+.hiw-dot-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background-color 250ms ease, width 250ms ease, border-radius 250ms ease;
+  display: block;
+}
+
+.hiw-dot:hover .hiw-dot-indicator {
+  background: var(--gold-500);
+}
+
+.hiw-dot.hiw-active .hiw-dot-indicator {
+  background: var(--green-700);
+  width: 24px;
+  border-radius: 10px;
+}
+
+.hiw-dot:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Play / Pause Toggle Button */
+.hiw-play-pause-btn {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 180ms ease;
+  touch-action: manipulation;
+}
+
+.hiw-play-pause-btn:hover {
+  background: var(--cream);
+  color: var(--green-900);
+  border-color: var(--green-600);
+}
+
+.hiw-play-pause-btn:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+/* Prev / Next Buttons */
+.hiw-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hiw-nav-btn {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--green-900);
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 180ms ease;
+  padding: 0;
+  touch-action: manipulation;
+}
+
+.hiw-nav-btn:hover {
+  background: var(--green-50);
+  border-color: var(--green-700);
+  color: var(--green-700);
+  transform: translateY(-1px);
+}
+
+.hiw-nav-btn:active {
+  transform: translateY(0);
+}
+
+.hiw-nav-btn:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+/* Screen reader announcement region */
+.hiw-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ----------------------------------------------------------------------
+   2. COMPACT "SELECT YOUR PORTAL" SECTION (.portal-*)
+   ---------------------------------------------------------------------- */
+.portal-section {
+  max-width: 1200px;
+  margin: 36px auto 44px auto;
+  padding: 0 16px;
+}
+
+.portal-heading {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--green-900);
+  text-align: center;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.01em;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.portal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  position: relative;
+}
+
+.portal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* Colored top borders matching role themes */
+.portal-card--farmer {
+  border-top: 4px solid var(--green-700);
+}
+
+.portal-card--scanner {
+  border-top: 4px solid #0288D1;
+}
+
+.portal-card--officer {
+  border-top: 4px solid #E65100;
+}
+
+.portal-card--admin {
+  border-top: 4px solid #455A64;
+}
+
+/* Header Row: Icon + Title on ONE row */
+.portal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.portal-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.portal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--green-900);
+  margin: 0;
+  line-height: 1.25;
+}
+
+/* One short line of description */
+.portal-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 14px 0;
+  line-height: 1.35;
+  min-height: 2.3em;
+}
+
+/* Actions Row */
+.portal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  width: 100%;
+}
+
+.portal-btn-half {
+  flex: 1;
+  text-align: center;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.portal-btn-scanner {
+  border-color: #0288D1;
+  color: #0288D1;
+}
+
+.portal-btn-scanner:hover {
+  background: #E1F5FE;
+  border-color: #0288D1;
+  color: #01579B;
+}
+
+.portal-btn-officer {
+  border-color: #E65100;
+  color: #E65100;
+}
+
+.portal-btn-officer:hover {
+  background: #FBE9E7;
+  border-color: #E65100;
+  color: #BF360C;
+}
+
+.portal-btn-admin {
+  border-color: #455A64;
+  color: #455A64;
+}
+
+.portal-btn-admin:hover {
+  background: #ECEFF1;
+  border-color: #455A64;
+  color: #263238;
+}
+
+
+/* ----------------------------------------------------------------------
+   3. RESPONSIVE BREAKPOINTS (Mobile, Tablet, Desktop)
+   ---------------------------------------------------------------------- */
+/* Tablet (600px to 991px) */
+@media (max-width: 991px) {
+  .portal-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .hiw-card.hiw-interactive .hiw-slide {
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    padding: 24px;
+  }
+}
+
+/* Mobile (<= 640px) */
+@media (max-width: 640px) {
+  .hiw-section {
+    margin: 28px auto 36px auto;
+    padding: 0 12px;
+  }
+
+  .hiw-heading {
+    font-size: 1.45rem;
+  }
+
+  .hiw-subheading {
+    font-size: 0.92rem;
+  }
+
+  .hiw-card.hiw-interactive .hiw-slides-viewport {
+    min-height: 400px;
+  }
+
+  .hiw-card.hiw-interactive .hiw-slides {
+    min-height: 400px;
+  }
+
+  .hiw-card.hiw-interactive .hiw-slide {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 20px 16px;
+    height: auto;
+    min-height: 400px;
+  }
+
+  .hiw-illustration {
+    padding: 12px;
+    max-height: 140px;
+  }
+
+  .hiw-svg {
+    max-height: 120px;
+  }
+
+  .hiw-slide-title {
+    font-size: 1.25rem;
+    margin: 0 0 8px 0;
+  }
+
+  .hiw-slide-desc {
+    font-size: 0.92rem;
+    margin-bottom: 14px;
+  }
+
+  .hiw-card.hiw-interactive .hiw-controls {
+    padding: 10px 16px;
+    justify-content: space-between;
+  }
+
+  .portal-section {
+    margin: 28px auto 36px auto;
+    padding: 0 12px;
+  }
+
+  .portal-heading {
+    font-size: 1.35rem;
+    margin-bottom: 16px;
+  }
+
+  .portal-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .portal-card {
+    padding: 14px;
+  }
+
+  .portal-desc {
+    min-height: unset;
+    margin-bottom: 12px;
+  }
+}
+
+/* Extra small mobile (320px - 360px) */
+@media (max-width: 360px) {
+  .portal-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .hiw-card.hiw-interactive .hiw-controls {
+    gap: 8px;
+  }
+
+  .hiw-play-pause-btn span.hiw-btn-label {
+    display: none;
+  }
+}
+
+/* Reduced Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .hiw-card.hiw-interactive .hiw-slide {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .hiw-progress-bar {
+    transition: none !important;
+  }
+
+  .portal-card {
+    transition: none !important;
+  }
+}
+

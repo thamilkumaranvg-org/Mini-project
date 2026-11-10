@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registered Farmers | Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#263238;">
+    <div class="header-container">
+      <a href="/admin/dashboard.html" class="brand">
+        <span class="brand-icon">📊</span>
+        <div class="brand-text">
+          <h1>Admin Console</h1>
+          <span id="header-user-name">Administrator</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/admin/bookings.html" class="nav-link">Bookings</a>
+        <a href="/admin/customers.html" class="nav-link active">Farmers</a>
+        <a href="/admin/crops.html" class="nav-link">Crops & Prices</a>
+        <a href="/admin/staff.html" class="nav-link">Staff Accounts</a>
+        <a href="/admin/audit.html" class="nav-link">Audit Log</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-size:1.8rem;color:var(--green-900);">Registered Farmers Directory</h1>
+        <p style="color:var(--muted);font-size:0.95rem;">Farmer registry and historical selling activity</p>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="card" style="padding:16px 20px;margin-bottom:20px;">
+      <form id="search-form" style="display:flex;gap:12px;">
+        <input type="text" id="search-q" class="form-control" placeholder="Search by Farmer Name, Email, or Mobile..." style="flex:1;">
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        <button type="button" id="search-reset" class="btn btn-secondary btn-sm">Reset</button>
+      </form>
+    </div>
+
+    <!-- Farmers Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th>State & District</th>
+              <th>Gender</th>
+              <th>Registered At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="customers-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">Loading farmers directory...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Farmer Profile & History Modal -->
+  <div id="customer-modal" class="modal-overlay">
+    <div class="modal" style="max-width:700px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="cust-modal-title">Farmer Profile</h3>
+        <button type="button" class="btn btn-sm" id="cust-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="cust-modal-body">
+        <!-- Dynamic content -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cust-cancel-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Admin Console • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatDate, escapeHTML, formatCurrency } from "/js/ui.js";
+
+    let currentUser = null;
+
+    async function init() {
+      currentUser = await requireAuth("admin");
+      if (!currentUser) return;
+      setupHeader(currentUser, "ADMINISTRATOR");
+
+      await loadCustomers();
+    }
+
+    async function loadCustomers(q = "") {
+      const tbody = document.getElementById("customers-tbody");
+      try {
+        const query = q ? `?q=${encodeURIComponent(q)}` : "";
+        const data = await apiRequest(`/api/admin/customers${query}`);
+        const items = data.items || [];
+
+        if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">No matching farmers found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items.map(c => `
+          <tr>
+            <td><strong style="font-size:1.05rem;">${escapeHTML(c.full_name)}</strong></td>
+            <td>${escapeHTML(c.mobile || "-")}</td>
+            <td>${escapeHTML(c.email)}</td>
+            <td>${escapeHTML(c.district || "")}, ${escapeHTML(c.state || "")}</td>
+            <td>${c.gender ? c.gender.toUpperCase() : "-"}</td>
+            <td style="color:var(--muted);font-size:0.85rem;">${formatDate(c.created_at)}</td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="window.viewCustomer('${c.id}')">View Activity</button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (e) {
+        showToast(e.message || "Failed to load customers", "error");
+      }
+    }
+
+    document.getElementById("search-form").onsubmit = (e) => {
+      e.preventDefault();
+      loadCustomers(document.getElementById("search-q").value.trim());
+    };
+
+    document.getElementById("search-reset").onclick = () => {
+      document.getElementById("search-q").value = "";
+      loadCustomers("");
+    };
+
+    window.viewCustomer = async (id) => {
+      const modal = document.getElementById("customer-modal");
+      const body = document.getElementById("cust-modal-body");
+
+      try {
+        const data = await apiRequest(`/api/admin/customers/${id}`);
+        const p = data.profile;
+        const bookings = data.bookings || [];
+
+        let bookingsHtml = `
+          <div style="margin-top:16px;">
+            <h4 style="color:var(--green-900);margin-bottom:8px;">Booking History (${bookings.length})</h4>
+        `;
+
+        if (bookings.length === 0) {
+          bookingsHtml += `<p style="color:var(--muted);font-size:0.9rem;">No bookings placed yet.</p>`;
+        } else {
+          bookingsHtml += `
+            <div class="table-responsive">
+              <table class="table" style="font-size:0.85rem;">
+                <thead>
+                  <tr>
+                    <th>Receipt No</th>
+                    <th>Date</th>
+                    <th>Crop</th>
+                    <th>Weight</th>
+                    <th>Final Paid</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${bookings.map(b => `
+                    <tr>
+                      <td><span style="font-family:monospace;">${escapeHTML(b.receipt_no)}</span></td>
+                      <td>${formatDate(b.session_date)}</td>
+                      <td>${escapeHTML(b.crop_name)}</td>
+                      <td>${b.verified_quantity_kg ? `${b.verified_quantity_kg} kg` : `${b.quantity_kg} kg (decl)`}</td>
+                      <td>${b.final_amount ? formatCurrency(b.final_amount) : "-"}</td>
+                      <td><span class="chip chip-info" style="font-size:0.75rem;">${b.status.toUpperCase()}</span></td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+        bookingsHtml += `</div>`;
+
+        body.innerHTML = `
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+            <h3 style="margin:0 0 4px 0;color:var(--green-900);">${escapeHTML(p.full_name)}</h3>
+            <div style="font-size:0.85rem;color:var(--muted);">Registered: ${formatDate(p.created_at)} | Status: Active</div>
+          </div>
+
+          <div style="background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:0.9rem;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div><strong>Email:</strong> ${escapeHTML(p.email)}</div>
+            <div><strong>Mobile:</strong> ${escapeHTML(p.mobile || "-")}</div>
+            <div><strong>DOB:</strong> ${p.dob || "-"}</div>
+            <div><strong>Gender:</strong> ${p.gender ? p.gender.toUpperCase() : "-"}</div>
+            <div style="grid-column:1/-1;"><strong>Location:</strong> ${escapeHTML(p.district || "")}, ${escapeHTML(p.state || "")}</div>
+            <div style="grid-column:1/-1;"><strong>Address:</strong> ${escapeHTML(p.address || "-")}</div>
+          </div>
+
+          ${bookingsHtml}
+        `;
+
+        modal.classList.add("open");
+      } catch (e) {
+        showToast(e.message || "Failed to load customer details", "error");
+      }
+    };
+
+    const closeModal = () => document.getElementById("customer-modal").classList.remove("open");
+    document.getElementById("cust-close-btn").onclick = closeModal;
+    document.getElementById("cust-cancel-btn").onclick = closeModal;
+
+    init();
+  </script>
+
+</body>
+</html>
+

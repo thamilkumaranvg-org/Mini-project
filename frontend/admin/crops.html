@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crops & MSP Price Management | Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#263238;">
+    <div class="header-container">
+      <a href="/admin/dashboard.html" class="brand">
+        <span class="brand-icon">📊</span>
+        <div class="brand-text">
+          <h1>Admin Console</h1>
+          <span id="header-user-name">Administrator</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/admin/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/admin/bookings.html" class="nav-link">Bookings</a>
+        <a href="/admin/customers.html" class="nav-link">Farmers</a>
+        <a href="/admin/crops.html" class="nav-link active">Crops & Prices</a>
+        <a href="/admin/staff.html" class="nav-link">Staff Accounts</a>
+        <a href="/admin/audit.html" class="nav-link">Audit Log</a>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-size:1.8rem;color:var(--green-900);">Crop Price List & MSP Rates</h1>
+        <p style="color:var(--muted);font-size:0.95rem;">Manage active crops and official procurement price per kg</p>
+      </div>
+      <button id="add-crop-btn" class="btn btn-primary btn-sm">+ Add New Crop</button>
+    </div>
+
+    <!-- Crops Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Produce Crop</th>
+              <th>Price per kg (INR)</th>
+              <th>Status</th>
+              <th>Last Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="crops-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted);">Loading crops catalog...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add / Edit Crop Modal -->
+  <div id="crop-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="crop-modal-title">Add Crop</h3>
+        <button type="button" class="btn btn-sm" id="crop-close-btn">✕</button>
+      </div>
+      <form id="crop-form">
+        <div class="modal-body">
+          <input type="hidden" id="crop-id">
+          
+          <div class="form-group">
+            <label class="form-label" for="crop-name">Crop Name <span class="required">*</span></label>
+            <input type="text" id="crop-name" class="form-control" required placeholder="e.g. Paddy (Dhan)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="crop-emoji">Emoji Icon</label>
+            <input type="text" id="crop-emoji" class="form-control" placeholder="🌾" maxlength="4">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="crop-price">Price per kg (₹) <span class="required">*</span></label>
+            <input type="number" id="crop-price" class="form-control" step="0.01" min="0.01" required placeholder="e.g. 25.50">
+            <span class="form-hint">Note: Modifying this rate will record a historical entry. Existing bookings maintain their locked snapshot rate.</span>
+          </div>
+
+          <div class="form-group" id="crop-active-group" style="display:none;">
+            <label class="form-label">Availability Status</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="checkbox" id="crop-active" style="width:18px;height:18px;">
+              <span>Active for Farmer Booking</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="crop-cancel-btn">Cancel</button>
+          <button type="submit" id="crop-save-btn" class="btn btn-primary">Save Crop</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Admin Console • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatDate, escapeHTML } from "/js/ui.js";
+
+    let currentUser = null;
+    let cropsList = [];
+
+    async function init() {
+      currentUser = await requireAuth("admin");
+      if (!currentUser) return;
+      setupHeader(currentUser, "ADMINISTRATOR");
+
+      await loadCrops();
+    }
+
+    async function loadCrops() {
+      const tbody = document.getElementById("crops-tbody");
+      try {
+        cropsList = await apiRequest("/api/admin/crops");
+        tbody.innerHTML = cropsList.map(c => `
+          <tr>
+            <td>#${c.id}</td>
+            <td><strong style="font-size:1.1rem;">${c.emoji || "🌾"} ${escapeHTML(c.name)}</strong></td>
+            <td><strong style="font-size:1.15rem;color:var(--green-700);">₹${c.price_per_kg.toFixed(2)}</strong></td>
+            <td>
+              <span class="chip ${c.is_active ? "chip-available" : "chip-disabled"}">
+                ${c.is_active ? "ACTIVE" : "INACTIVE"}
+              </span>
+            </td>
+            <td style="color:var(--muted);font-size:0.85rem;">${formatDate(c.updated_at)}</td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="window.editCrop(${c.id})">Edit Price</button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (e) {
+        showToast(e.message || "Failed to load crops", "error");
+      }
+    }
+
+    const modal = document.getElementById("crop-modal");
+    const openAddModal = () => {
+      document.getElementById("crop-modal-title").textContent = "Add New Crop";
+      document.getElementById("crop-id").value = "";
+      document.getElementById("crop-name").value = "";
+      document.getElementById("crop-emoji").value = "🌾";
+      document.getElementById("crop-price").value = "";
+      document.getElementById("crop-active-group").style.display = "none";
+      modal.classList.add("open");
+    };
+
+    window.editCrop = (id) => {
+      const c = cropsList.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById("crop-modal-title").textContent = `Edit ${c.name}`;
+      document.getElementById("crop-id").value = c.id;
+      document.getElementById("crop-name").value = c.name;
+      document.getElementById("crop-emoji").value = c.emoji || "";
+      document.getElementById("crop-price").value = c.price_per_kg;
+      document.getElementById("crop-active").checked = c.is_active;
+      document.getElementById("crop-active-group").style.display = "block";
+      modal.classList.add("open");
+    };
+
+    const closeModal = () => modal.classList.remove("open");
+    document.getElementById("add-crop-btn").onclick = openAddModal;
+    document.getElementById("crop-close-btn").onclick = closeModal;
+    document.getElementById("crop-cancel-btn").onclick = closeModal;
+
+    document.getElementById("crop-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById("crop-save-btn");
+      saveBtn.disabled = true;
+
+      const cropId = document.getElementById("crop-id").value;
+      const name = document.getElementById("crop-name").value.trim();
+      const emoji = document.getElementById("crop-emoji").value.trim();
+      const price = parseFloat(document.getElementById("crop-price").value);
+      const isActive = document.getElementById("crop-active").checked;
+
+      try {
+        if (cropId) {
+          // Update
+          await apiRequest(`/api/admin/crops/${cropId}`, {
+            method: "PUT",
+            body: { name, emoji, price_per_kg: price, is_active: isActive }
+          });
+          showToast("Crop price updated successfully", "success");
+        } else {
+          // Create
+          await apiRequest("/api/admin/crops", {
+            method: "POST",
+            body: { name, emoji, price_per_kg: price }
+          });
+          showToast("New crop added to catalog", "success");
+        }
+        closeModal();
+        await loadCrops();
+      } catch (err) {
+        showToast(err.message || "Failed to save crop", "error");
+      } finally {
+        saveBtn.disabled = false;
+      }
+    };
+
+    init();
+  </script>
+
+</body>
+</html>
+

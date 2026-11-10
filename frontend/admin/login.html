@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | Farmer Slot Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#37474F;">
+    <div class="header-container">
+      <a href="/" class="brand">
+        <span class="brand-icon">📊</span>
+        <div class="brand-text">
+          <h1>System Administration</h1>
+          <span>Procurement Management System</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/" class="nav-link">Home</a>
+      </div>
+    </div>
+  </header>
+
+  <main style="display:flex;align-items:center;justify-content:center;padding:40px 16px;">
+    <div class="card" style="max-width:440px;width:100%;margin:0 auto;box-shadow:var(--shadow);">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-size:2.8rem;margin-bottom:8px;">📊</div>
+        <h2 style="color:#37474F;font-size:1.5rem;">Administrator Sign In</h2>
+        <p style="color:var(--muted);font-size:0.95rem;">Enter executive administrator credentials</p>
+      </div>
+
+      <div id="login-error" class="form-error" style="display:none;background:#FFEBEE;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid #FFCDD2;margin-bottom:16px;"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="email">Admin Email <span class="required">*</span></label>
+          <input type="email" id="email" class="form-control" required placeholder="admin@slotbooking.gov.in">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password <span class="required">*</span></label>
+          <input type="password" id="password" class="form-control" required placeholder="••••••••">
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-block btn-lg" style="background-color:#37474F;margin-top:24px;">
+          Access Admin Console
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Ministry of Agriculture & Farmer Welfare
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { showToast } from "/js/ui.js";
+
+    const form = document.getElementById("login-form");
+    const errBox = document.getElementById("login-error");
+    const submitBtn = document.getElementById("submit-btn");
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      errBox.style.display = "none";
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Verifying...";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        await apiRequest("/api/auth/login", {
+          method: "POST",
+          body: { email, password, portal: "admin" }
+        });
+        showToast("Authenticated as Administrator", "success");
+        window.location.href = "/admin/dashboard.html";
+      } catch (err) {
+        errBox.textContent = err.message || "Invalid administrator credentials.";
+        errBox.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Access Admin Console";
+      }
+    };
+  </script>
+
+</body>
+</html>
+

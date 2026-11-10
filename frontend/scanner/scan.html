@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gate QR Check-In Scanner | Farmer Slot Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <!-- Pinned HTML5-QRCode Library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+  <header class="app-header" style="background-color:#0277BD;">
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-icon">📷</span>
+        <div class="brand-text">
+          <h1>Gate Scanner Portal</h1>
+          <span id="header-user-name">Loading...</span>
+        </div>
+      </div>
+      <div class="header-nav">
+        <span class="user-badge" id="header-role-badge">GATE STAFF</span>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding:24px 16px;">
+    <!-- Current Session Status Header -->
+    <div class="card" style="background:var(--gold-50);border-color:var(--gold-500);margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <span class="chip" id="session-active-chip" style="background:#FFFFFF;border:1px solid var(--gold-500);color:#8A5B00;">Loading Session...</span>
+          <h2 id="current-session-title" style="margin:6px 0 0 0;color:var(--green-900);">-</h2>
+        </div>
+        <div style="display:flex;gap:16px;">
+          <div style="text-align:center;background:#FFFFFF;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid rgba(242,169,0,0.3);">
+            <div style="font-size:0.75rem;color:var(--muted);">TOTAL BOOKED</div>
+            <strong id="stat-booked" style="font-size:1.4rem;color:var(--text);">-</strong>
+          </div>
+          <div style="text-align:center;background:#FFFFFF;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid rgba(242,169,0,0.3);">
+            <div style="font-size:0.75rem;color:var(--muted);">CHECKED IN</div>
+            <strong id="stat-checkedin" style="font-size:1.4rem;color:var(--green-700);">-</strong>
+          </div>
+          <div style="text-align:center;background:#FFFFFF;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid rgba(242,169,0,0.3);">
+            <div style="font-size:0.75rem;color:var(--muted);">WAITING IN QUEUE</div>
+            <strong id="stat-waiting" style="font-size:1.4rem;color:#0277BD;">-</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scanner & Manual Fallback Grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:28px;">
+      
+      <!-- Camera Scanner Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">📷 Live Camera Scanner</h3>
+          <span class="chip chip-info">Auto-Detect</span>
+        </div>
+        
+        <div id="reader" style="width:100%;min-height:280px;border-radius:var(--radius);overflow:hidden;background:#000000;"></div>
+        
+        <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:0.8rem;color:var(--muted);">Requires camera permission (HTTPS / localhost)</span>
+          <button id="toggle-camera-btn" class="btn btn-secondary btn-sm">Toggle Camera</button>
+        </div>
+      </div>
+
+      <!-- Manual Token Entry Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">⌨️ Manual Token Fallback</h3>
+        </div>
+        <p style="font-size:0.9rem;color:var(--muted);margin-bottom:16px;">
+          If farmer's phone screen is cracked or camera cannot read the code, enter or paste the QR token manually.
+        </p>
+
+        <form id="manual-scan-form">
+          <div class="form-group">
+            <label class="form-label" for="manual-token">QR Security Token <span class="required">*</span></label>
+            <input type="text" id="manual-token" class="form-control" required placeholder="Paste or type single-use QR token">
+          </div>
+          <button type="submit" id="manual-submit-btn" class="btn btn-primary btn-block">
+            Verify & Check In
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Live Checked-In Queue for Session -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:16px 20px;background:var(--cream);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="margin:0;font-size:1.15rem;color:var(--green-900);">Live Gate Queue (Current Session)</h3>
+        <span style="font-size:0.85rem;color:var(--muted);">Strict FIFO Order</span>
+      </div>
+
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:120px;">Queue #</th>
+              <th>Farmer Name</th>
+              <th>Gate Scan Time</th>
+            </tr>
+          </thead>
+          <tbody id="queue-tbody">
+            <tr>
+              <td colspan="3" style="text-align:center;padding:24px;color:var(--muted);">Loading live queue...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Big Full-Screen Visual Scan Result Overlay -->
+  <div id="scan-modal-overlay" class="modal-overlay" style="z-index:9999;">
+    <div id="scan-modal-content" style="max-width:480px;width:90%;border-radius:24px;padding:36px 24px;text-align:center;box-shadow:var(--shadow-lg);background:#FFFFFF;">
+      
+      <!-- Big Icon -->
+      <div id="scan-result-icon" style="font-size:5rem;margin-bottom:12px;line-height:1;">✅</div>
+
+      <!-- Main Result Title -->
+      <h2 id="scan-result-title" style="font-size:1.8rem;margin-bottom:8px;">CHECK-IN SUCCESS</h2>
+
+      <!-- Details Box -->
+      <div id="scan-result-details" style="margin:16px 0;padding:16px;background:var(--cream);border-radius:var(--radius);font-size:1rem;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div style="font-size:0.85rem;color:var(--muted);margin-top:16px;">
+        Auto-closing in 3 seconds...
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Gate Scanner Portal • Asia/Kolkata
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatTime } from "/js/ui.js";
+    import { SmartPoller } from "/js/polling.js";
+
+    let currentUser = null;
+    let html5QrcodeScanner = null;
+    let isProcessingScan = false;
+    let lastScannedToken = "";
+    let lastScanTime = 0;
+    let currentSessionId = 1;
+    let poller = null;
+
+    async function init() {
+      currentUser = await requireAuth("scanner");
+      if (!currentUser) return;
+      setupHeader(currentUser, "GATE SCANNER");
+
+      await loadCurrentSession();
+      await loadQueue();
+
+      // Poll current session & queue every 3 seconds
+      poller = new SmartPoller(async () => {
+        await loadCurrentSession();
+        await loadQueue();
+      }, 3000);
+      poller.start();
+
+      initCameraScanner();
+    }
+
+    async function loadCurrentSession() {
+      try {
+        const s = await apiRequest("/api/scanner/current-session");
+        currentSessionId = s.session_id;
+
+        document.getElementById("current-session-title").textContent = `${s.session_name} (${s.start_time} - ${s.end_time})`;
+        document.getElementById("stat-booked").textContent = s.total_booked;
+        document.getElementById("stat-checkedin").textContent = s.checked_in_count;
+        document.getElementById("stat-waiting").textContent = s.waiting_count;
+
+        const chip = document.getElementById("session-active-chip");
+        if (s.is_active_now) {
+          chip.textContent = "● ACTIVE SESSION NOW";
+          chip.style.borderColor = "var(--green-700)";
+          chip.style.color = "var(--green-700)";
+        } else {
+          chip.textContent = "UPCOMING SESSION";
+          chip.style.borderColor = "var(--gold-500)";
+          chip.style.color = "#8A5B00";
+        }
+      } catch (e) {
+        console.warn("Could not load current session", e);
+      }
+    }
+
+    async function loadQueue() {
+      const tbody = document.getElementById("queue-tbody");
+      try {
+        const items = await apiRequest(`/api/scanner/queue?session_id=${currentSessionId}`);
+        if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--muted);">No farmers checked in yet for this session.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = items.map(q => `
+          <tr>
+            <td><strong style="color:var(--green-700);font-size:1.3rem;">#${q.queue_number}</strong></td>
+            <td style="font-weight:600;font-size:1.05rem;">${escapeHTML(q.receipt_name)}</td>
+            <td style="color:var(--muted);">${formatTime(q.checked_in_at)}</td>
+          </tr>
+        `).join("");
+      } catch (e) {
+        console.warn("Could not load queue", e);
+      }
+    }
+
+    // Camera Scanner Setup
+    function initCameraScanner() {
+      if (!window.Html5Qrcode) {
+        console.warn("Html5Qrcode library not yet loaded");
+        return;
+      }
+
+      html5QrcodeScanner = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: { width: 240, height: 240 } };
+
+      html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => onScanSuccess(decodedText),
+        (errorMessage) => { /* ignore per-frame parse failures */ }
+      ).catch(err => {
+        console.warn("Camera could not be started automatically", err);
+        document.getElementById("reader").innerHTML = `
+          <div style="color:#FFFFFF;padding:40px 20px;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">📷</div>
+            <p style="font-size:0.9rem;color:#FFF6DB;">Camera access unavailable or blocked. Please use manual token entry below.</p>
+          </div>
+        `;
+      });
+    }
+
+    async function onScanSuccess(token) {
+      const now = Date.now();
+      // Debounce: ignore duplicate scans within 3 seconds
+      if (token === lastScannedToken && (now - lastScanTime) < 3000) {
+        return;
+      }
+      if (isProcessingScan) return;
+
+      isProcessingScan = true;
+      lastScannedToken = token;
+      lastScanTime = now;
+
+      await handleCheckIn(token);
+    }
+
+    async function handleCheckIn(token) {
+      try {
+        const res = await apiRequest("/api/scanner/scan", {
+          method: "POST",
+          body: { token }
+        });
+        showScanResultModal(true, res);
+        await loadCurrentSession();
+        await loadQueue();
+      } catch (err) {
+        showScanResultModal(false, null, err.message, err.code);
+      } finally {
+        setTimeout(() => {
+          isProcessingScan = false;
+        }, 1500);
+      }
+    }
+
+    function showScanResultModal(isSuccess, data, errorMessage, errorCode) {
+      const overlay = document.getElementById("scan-modal-overlay");
+      const modal = document.getElementById("scan-modal-content");
+      const icon = document.getElementById("scan-result-icon");
+      const title = document.getElementById("scan-result-title");
+      const details = document.getElementById("scan-result-details");
+
+      if (isSuccess) {
+        modal.style.border = "4px solid var(--green-700)";
+        icon.textContent = "✅";
+        title.textContent = "CHECK-IN SUCCESS";
+        title.style.color = "var(--green-700)";
+        details.innerHTML = `
+          <div style="font-size:0.9rem;color:var(--muted);">${escapeHTML(data.session_name)}</div>
+          <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin:6px 0;">${escapeHTML(data.receipt_name)}</div>
+          <div style="margin-top:10px;padding:8px;background:var(--green-50);border-radius:var(--radius-sm);border:1px solid #A5D6A7;">
+            <span style="font-size:0.85rem;color:var(--green-900);">Sequential Queue Number</span>
+            <div style="font-size:2.8rem;font-weight:800;color:var(--green-700);line-height:1.1;">#${data.queue_number}</div>
+          </div>
+        `;
+      } else {
+        modal.style.border = "4px solid #D32F2F";
+        icon.textContent = "❌";
+        title.textContent = "SCAN REJECTED";
+        title.style.color = "#D32F2F";
+        details.innerHTML = `
+          <div style="font-family:monospace;font-weight:700;color:#D32F2F;font-size:1.1rem;margin-bottom:8px;">[${escapeHTML(errorCode || "SCAN_ERROR")}]</div>
+          <div style="font-size:1.05rem;color:var(--text);">${escapeHTML(errorMessage || "Invalid QR code.")}</div>
+        `;
+      }
+
+      overlay.classList.add("open");
+
+      // Auto reset after 3 seconds
+      setTimeout(() => {
+        overlay.classList.remove("open");
+      }, 3000);
+    }
+
+    // Manual Token Entry Handler
+    document.getElementById("manual-scan-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("manual-token");
+      const btn = document.getElementById("manual-submit-btn");
+      const token = input.value.trim();
+
+      if (!token) return;
+
+      btn.disabled = true;
+      btn.textContent = "Verifying...";
+
+      try {
+        await handleCheckIn(token);
+        input.value = "";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Verify & Check In";
+      }
+    };
+
+    function escapeHTML(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
+

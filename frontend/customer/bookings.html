@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Selling Bookings | Farmer Slot Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/customer/slots.html" class="brand">
+        <span class="brand-icon">🌾</span>
+        <div class="brand-text">
+          <h1>Farmer Portal</h1>
+          <span id="header-user-name">Loading...</span>
+        </div>
+      </a>
+      <div class="header-nav">
+        <a href="/customer/slots.html" class="nav-link">Book Slots</a>
+        <a href="/customer/bookings.html" class="nav-link active">My Bookings</a>
+        <a href="/customer/profile.html" class="nav-link">Profile</a>
+        <div class="notif-container">
+          <button id="notif-btn" class="notif-btn" title="Notifications">
+            🔔<span id="notif-badge" class="notif-badge" style="display:none;">0</span>
+          </button>
+          <div id="notif-dropdown" class="notif-dropdown">
+            <div class="notif-header">
+              <span>Notifications</span>
+              <button id="notif-mark-all" class="btn btn-sm" style="font-size:0.75rem;padding:2px 8px;">Mark all read</button>
+            </div>
+            <ul id="notif-list" class="notif-list"></ul>
+          </div>
+        </div>
+        <button id="header-logout-btn" class="btn btn-sm btn-secondary" style="color:#FFFFFF;border-color:rgba(255,255,255,0.4);background:transparent;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 24px 0;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-size:1.8rem;color:var(--green-900);">My Slot Bookings</h1>
+        <p style="color:var(--muted);font-size:0.95rem;">View your upcoming and historical produce selling reservations</p>
+      </div>
+      <a href="/customer/slots.html" class="btn btn-primary btn-sm">+ Book New Slot</a>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="table-responsive" style="margin:0;border:none;">
+        <table class="table" id="bookings-table">
+          <thead>
+            <tr>
+              <th>Receipt No</th>
+              <th>Date & Session</th>
+              <th>Crop</th>
+              <th>Declared Qty</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Queue #</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-tbody">
+            <tr>
+              <td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">Loading your bookings...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Farmer Slot Booking System • Ministry of Agriculture & Farmer Welfare
+  </footer>
+
+  <script type="module">
+    import { apiRequest } from "/js/api.js";
+    import { requireAuth, setupHeader } from "/js/auth.js";
+    import { showToast, formatCurrency, formatDate, escapeHTML } from "/js/ui.js";
+
+    let currentUser = null;
+
+    async function init() {
+      currentUser = await requireAuth("customer");
+      if (!currentUser) return;
+      setupHeader(currentUser, "FARMER");
+      await loadBookings();
+    }
+
+    async function loadBookings() {
+      const tbody = document.getElementById("bookings-tbody");
+      try {
+        const items = await apiRequest("/api/bookings");
+        if (items.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">
+                You have not booked any produce selling slots yet.
+                <div style="margin-top:12px;">
+                  <a href="/customer/slots.html" class="btn btn-primary btn-sm">Book Your First Slot</a>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = items.map(b => {
+          let statusBadge = "chip-info";
+          if (b.status === "completed") statusBadge = "chip-available";
+          else if (b.status === "checked_in") statusBadge = "chip-available";
+          else if (b.status === "called") statusBadge = "chip-almost";
+          else if (b.status === "missed" || b.status === "no_show") statusBadge = "chip-full";
+          else if (b.status === "cancelled") statusBadge = "chip-disabled";
+
+          const amountDisplay = b.status === "completed" && b.final_amount !== null
+            ? `<strong>${formatCurrency(b.final_amount)}</strong> <span style="font-size:0.75rem;color:var(--green-700);">(Paid)</span>`
+            : `${formatCurrency(b.estimated_amount)} <span style="font-size:0.75rem;color:var(--muted);">(Est.)</span>`;
+
+          return `
+            <tr>
+              <td>
+                <span style="font-family:monospace;font-weight:600;">${escapeHTML(b.receipt_no)}</span>
+              </td>
+              <td>
+                <strong>${formatDate(b.session_date)}</strong><br>
+                <span style="font-size:0.85rem;color:var(--muted);">${escapeHTML(b.session_name)} (${b.start_time} - ${b.end_time})</span>
+              </td>
+              <td>${escapeHTML(b.crop_name)}</td>
+              <td>${b.declared_quantity_kg} kg</td>
+              <td>${amountDisplay}</td>
+              <td>
+                <span class="chip ${statusBadge}">${b.status.replace("_", " ").toUpperCase()}</span>
+              </td>
+              <td>
+                ${b.queue_number ? `<strong style="color:var(--green-700);font-size:1.1rem;">#${b.queue_number}</strong>` : "-"}
+              </td>
+              <td>
+                <a href="/customer/receipt.html?id=${b.id}" class="btn btn-secondary btn-sm">View Receipt & QR</a>
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+      } catch (e) {
+        showToast(e.message || "Failed to load bookings", "error");
+      }
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
+
